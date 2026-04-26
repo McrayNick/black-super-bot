@@ -245,7 +245,8 @@ async function handleDelete(client, msg) {
 
         return client.sendMessage(target, {
           image: buffer,
-          caption: notify + "📸 [Image]" + caption
+          caption: notify + "📸 [Image]" + caption,
+		  mentions: [sender, deletedBy]
         });
 
       } catch {
