@@ -210,7 +210,7 @@ async function handleDelete(client, msg) {
     // 🧾 HEADER
     let notify = `👀 *BLACK-MD ANTI DELETE*\n\n`;
     notify += `📍 *Chat:* ${chatName}\n`;
-    notify += `👤 *Sender:* @${sender.split("@")[0]}\n`;
+    notify += `👤 *Sender Name:* ${pushname}\n`;
     notify += `🗑️ *Deleted By:* @${deletedBy.split("@")[0]}\n\n`;
 
     const target = botJid;
@@ -245,8 +245,7 @@ async function handleDelete(client, msg) {
 
         return client.sendMessage(target, {
           image: buffer,
-          caption: notify + "📸 [Image]" + caption,
-		  mentions: [sender, deletedBy]
+          caption: notify + "📸 [Image]" + caption
         });
 
       } catch {
