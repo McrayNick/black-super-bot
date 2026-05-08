@@ -55,10 +55,17 @@ Linking/Pairing:
 <p/>
             
 <!-- Glowing Footer -->
+## DEPLOYMENT 
 <p align="center">
   <img src="https://i.imgur.com/dBaSKWF.gif" height="40" width="100%">
 </p>
+<a href="https://dashboard.heroku.com/new?template=https://github.com/Blackie254/black-super-bot" target="_blank" style="margin-right: 10px;">
+    <img alt="Deploy to Heroku" src="https://www.herokucdn.com/deploy/button.svg"/>
+  </a>
+</p>
 
+- Need deployment??? follow here👇
+  
 ###  GET BLACK-MD:
 
 
