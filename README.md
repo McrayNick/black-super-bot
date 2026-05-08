@@ -55,13 +55,20 @@ Linking/Pairing:
 <p/>
             
 <!-- Glowing Footer -->
-## DEPLOYMENT 
 <p align="center">
   <img src="https://i.imgur.com/dBaSKWF.gif" height="40" width="100%">
 </p>
+
+## DEPLOYMENT 
+
 <a href="https://dashboard.heroku.com/new?template=https://github.com/Blackie254/black-super-bot" target="_blank" style="margin-right: 10px;">
     <img alt="Deploy to Heroku" src="https://www.herokucdn.com/deploy/button.svg"/>
   </a>
+</p>
+
+<!-- Glowing Footer -->
+<p align="center">
+  <img src="https://i.imgur.com/dBaSKWF.gif" height="40" width="100%">
 </p>
 
 - Need deployment??? follow here👇
@@ -69,21 +76,10 @@ Linking/Pairing:
 ###  GET BLACK-MD:
 
 
- 
  ***[![Tap to deploy on heroku](https://www.herokucdn.com/deploy/button.svg)](https://bot.blueblizzards.site)***
  
 
-    
-
-- Get the automated black md bot.
  </h2>
-
-<!-- Glowing Footer -->
-<p align="center">
-  <img src="https://i.imgur.com/dBaSKWF.gif" height="40" width="100%">
-</p>
-
- 😈  BLACK-MD 👿
 
 <!-- Glowing Footer -->
 <p align="center">
