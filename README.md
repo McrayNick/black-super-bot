@@ -41,49 +41,17 @@
   <img src="https://i.imgur.com/dBaSKWF.gif" height="40" width="100%">
 </p>
 
-## ```CONTACT ME```
-
-<p align="center">
-
-<a href="https://api.whatsapp.com/send?phone=254114283550&text=Hello+black"><img src="https://img.shields.io/badge/Contact 𝐁𝐋𝐀𝐂𝐊𝐌𝐄𝐑𝐂𝐇𝐀𝐍𝐓 -25D366?style=for-the-badge&logo=whatsapp&logoColor=white" />
-
-
-***This bot is created with the help of NodeJS and uses [Baileys](https://github.com/whiskeysockets/Baileys)***
-
-<!-- Glowing Footer -->
-<p align="center">
-  <img src="https://i.imgur.com/dBaSKWF.gif" height="40" width="100%">
-</p>
-
-## DISCLAIMER
-- Modifying the bot structure is at your own risk. We won't offer technical support in case of errors resulting!
-
-<!-- Glowing Footer -->
-<p align="center">
-  <img src="https://i.imgur.com/dBaSKWF.gif" height="40" width="100%">
-</p>
-
-## FEATURES
-This is a highly customisable simple whatsapp bot with group management features and few media commands and chatgpt courtesy of Openai.
-
-Our AI features use random APIs to run, so sometimes they may be down.
-
-<!-- Glowing Footer -->
-<p align="center">
-  <img src="https://i.imgur.com/dBaSKWF.gif" height="40" width="100%">
-</p>
-
 # SET-UP
 
 ## ` Fork this repo`
 <p align="centre">
-<a href="https://github.com/Blackie254/black-super-bot/fork"><img src="https://img.shields.io/badge/Fork%20Create-purple?style=for-the-badge&logo=github" alt="FORK RAVEN-BOT" width="160"></a>
+<a href="https://github.com/Blackie254/black-super-bot/fork"><img src="https://img.shields.io/badge/Fork%20Create-purple?style=for-the-badge&logo=github" alt="FORK BLACK-MD" width="160"></a>
 <p/>
   
 Linking/Pairing:
 ## ` Pair onrender`
 <p align="centre">
-<a href="https://bot.blueblizzards.site"><img height= "37" title="Author" src="https://img.shields.io/badge/Session-green?style=for-the-badge&logo=render"></a>
+<a href="https://blackmd-pairing.onrender.com"><img height= "37" title="Author" src="https://img.shields.io/badge/Session-green?style=for-the-badge&logo=render"></a>
 <p/>
             
 <!-- Glowing Footer -->
@@ -108,26 +76,7 @@ Linking/Pairing:
   <img src="https://i.imgur.com/dBaSKWF.gif" height="40" width="100%">
 </p>
 
-  ## credits    
-<!-- Glowing Footer -->
-<p align="center">
-  <img src="https://i.imgur.com/dBaSKWF.gif" height="40" width="100%">
-</p> 
-  <h1 align="center">𝐂𝐑𝐄𝐃𝐈𝐓𝐒 𝐓𝐎 𝐍𝐈𝐂𝐊 𝐇𝐔𝐍𝐓𝐄𝐑 𝐅𝐎𝐑 𝐓𝐇𝐄 𝐁𝐀𝐒𝐄</h1>
-  </a>
-  <!-- Glowing Footer -->
-<p align="center">
-  <img src="https://i.imgur.com/dBaSKWF.gif" height="40" width="100%">
-</p>
-
-
-
-
-## License
-
-[MIT License]((https://github.com/Blackie254/black-super-bot)/LICENSE)
-
-Copyright (c) 2025 𝐁𝐋𝐀𝐂𝐊𝐌𝐄𝐑𝐂𝐇𝐀𝐍𝐓  
+ 😈  BLACK-MD 👿
 
 <!-- Glowing Footer -->
 <p align="center">
