@@ -148,7 +148,17 @@ const mek = chatUpdate.messages[0];
     
 //========================================================================================================================//		      
 //========================================================================================================================//	      
-     const groupMetadata = m.isGroup ? await client.groupMetadata(m.chat).catch((e) => { }) : "";  
+      client.getJidFromLid = async (lid) => {
+                    const groupMetadata = await client.groupMetadata(from);
+                    const match = groupMetadata.participants.find(p => p.lid === lid || p.id === lid);
+                    return match?.pn || null;
+                };
+
+                client.getLidFromJid = async (jid) => {
+                    const groupMetadata = await client.groupMetadata(from);
+                    const match = groupMetadata.participants.find(p => p.jid === jid || p.id === jid);
+                    return match?.lid || null;
+                }; 
     const groupName = m.isGroup && groupMetadata ? await groupMetadata.subject : "";  
     const participants = m.isGroup && groupMetadata
   ? groupMetadata.participants
