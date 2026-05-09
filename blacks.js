@@ -1146,9 +1146,6 @@ case "yta": {
 
       if (!videoId) return m.reply("❌ Invalid YouTube link.");
 
-      videoTitle = "YouTube Audio";
-      videoThumbnail = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
-
     } else {
       let search = await axios.get(`${api}/search/yts?query=${encodeURIComponent(text)}`);
       let videos = search.data?.result;
