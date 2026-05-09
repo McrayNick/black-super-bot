@@ -977,7 +977,7 @@ case "autobio": {
 break;
 		      
 case "autoview": {
-	if(!Owner) throw NotOwner;
+	if(!Owner) return m.reply(NotOwner);
   const settings = await getSettings();
   const current = settings.autoview;
   if (!text) return reply(`👀 Auto view status is currently *${current.toUpperCase()}*`);
