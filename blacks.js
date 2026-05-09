@@ -86,7 +86,9 @@ console.log(prefix);
             return '';
         }
 	  }
-
+	  
+const mek = chatUpdate.messages[0];
+	  
 	  const sendr = mek.key.fromMe 
         ? (client.user.id.split(':')[0] + '@s.whatsapp.net' || client.user.id) 
         : (mek.key.participantPn || mek.key.senderPn || mek.key.participant || mek.key.remoteJid);
@@ -104,7 +106,7 @@ console.log(prefix);
     const from = m.chat;
     const reply = m.reply;
     const sender = sendr;
-    const mek = chatUpdate.messages[0];
+    
     const getGroupAdmins = (participants) => { 
        let admins = []; 
        for (let i of participants) { 
