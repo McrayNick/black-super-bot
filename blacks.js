@@ -1117,8 +1117,9 @@ case 'quran': {
   break;
 //========================================================================================================================//
 	//========================================================================================================================//
-			  case "play":
-		      case "ytmp3": {
+	case "play":
+case "ytmp3":
+case "yta": {
   const axios = require("axios");
 
   if (!text) return m.reply("🔎 Provide a song name or YouTube link!");
@@ -1126,11 +1127,16 @@ case 'quran': {
   try {
     await client.sendMessage(m.chat, { react: { text: "🎧", key: m.key } });
 
+    // ⏳ STEP 1: Searching
+    let msg = await client.sendMessage(m.chat, {
+      text: `🔍 Searching *${text}*...`
+    }, { quoted: m });
+
     let videoUrl;
     let videoTitle;
     let videoThumbnail;
 
-    // 🔍 If input is YouTube URL
+    // 🔍 If YouTube URL
     if (text.match(/(youtube\.com|youtu\.be)/i)) {
       videoUrl = text;
 
@@ -1144,12 +1150,13 @@ case 'quran': {
       videoThumbnail = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
 
     } else {
-      // 🔎 Search
       let search = await axios.get(`${api}/search/yts?query=${encodeURIComponent(text)}`);
       let videos = search.data?.result;
 
       if (!Array.isArray(videos) || videos.length === 0) {
-        return m.reply("❌ No results found.");
+        return client.sendMessage(m.chat, {
+          text: "❌ No results found."
+        }, { quoted: msg });
       }
 
       let first = videos[0];
@@ -1159,11 +1166,27 @@ case 'quran': {
       videoThumbnail = first.thumbnail;
     }
 
-    // 📥 Download audio
+    // ✅ STEP 2: Found
+    await client.sendMessage(m.chat, {
+      text: `😍 Found: *${videoTitle}*`,
+      edit: msg.key
+    });
+
+	  await client.sendMessage(m.chat, {
+      text: `✅ Downloading: *${videoTitle}*`,
+      edit: msg.key
+    });
+
+    // 📥 Download
     let download = await axios.get(`${api}/download/audio?url=${encodeURIComponent(videoUrl)}`);
     let downloadUrl = download.data?.result;
 
-    if (!downloadUrl) return m.reply("❌ Failed to get audio.");
+    if (!downloadUrl) {
+      return client.sendMessage(m.chat, {
+        text: "❌ Failed to get audio.",
+        edit: msg.key
+      });
+    }
 
     let fileName = `${videoTitle}.mp3`.replace(/[^\w\s.-]/gi, "");
 
@@ -1178,7 +1201,7 @@ case 'quran': {
       { quoted: m }
     );
 
-    // 📄 Send document version
+    // 📄 Send document
     await client.sendMessage(
       m.chat,
       {
@@ -1189,12 +1212,22 @@ case 'quran': {
       { quoted: m }
     );
 
+    // ✅ FINAL: Done
+    await client.sendMessage(m.chat, {
+      text: `✅ Succesfully Downloaded  *${videoTitle}* `,
+      edit: msg.key
+    });
+
   } catch (err) {
     console.log("Play error:", err);
-    m.reply("❌ Error downloading audio.");
+
+    await client.sendMessage(m.chat, {
+      text: "❌ Error downloading audio.",
+      edit: msg?.key
+    });
   }
 }
-break;
+break;		  
 			  
 //========================================================================================================================//
 //========================================================================================================================//
