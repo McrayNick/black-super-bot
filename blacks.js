@@ -159,6 +159,8 @@ const mek = chatUpdate.messages[0];
                     const match = groupMetadata.participants.find(p => p.jid === jid || p.id === jid);
                     return match?.lid || null;
                 }; 
+	  
+	const groupMetadata = m.isGroup ? await client.groupMetadata(m.chat).catch((e) => { }) : "";
     const groupName = m.isGroup && groupMetadata ? await groupMetadata.subject : "";  
     const participants = m.isGroup && groupMetadata
   ? groupMetadata.participants
