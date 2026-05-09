@@ -106,8 +106,10 @@ const mek = chatUpdate.messages[0];
     const from = m.chat;
     const reply = m.reply;
     const sender = sendr;
-    
-    const getGroupAdmins = (participants) => { 
+      const botId = standardizeJid(client.user?.id);
+	  const botJidd = standardizeJid(botId);
+	  
+	const getGroupAdmins = (participants) => { 
        let admins = []; 
        for (let i of participants) { 
          i.admin === "superadmin" ? admins.push(i.id) : i.admin === "admin" ? admins.push(i.id) : ""; 
@@ -122,7 +124,7 @@ const mek = chatUpdate.messages[0];
     // Create superUser array safely
     const superUser = [
         ownerJid,
-        itsMe,
+        botJidd,
         ...owner.map(num => `${num}@s.whatsapp.net`)
     ].map(jid => standardizeJid(jid)).filter(Boolean);
 
