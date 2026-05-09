@@ -123,7 +123,7 @@ const mek = chatUpdate.messages[0];
     const superUser = [
         ownerJid,
         itsMe,
-        ...dev.map(num => `${num}@s.whatsapp.net`)
+        ...owner.map(num => `${num}@s.whatsapp.net`)
     ].map(jid => standardizeJid(jid)).filter(Boolean);
 
     const superUserSet = new Set(superUser);
