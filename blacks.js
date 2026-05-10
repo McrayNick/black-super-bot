@@ -122,23 +122,10 @@ const mek = chatUpdate.messages[0];
         ? standardizeJid(dev.replace(/\D/g, ''))
         : standardizeJid('254780147229');
 	  
-client.getJidFromLid = async (lid) => {
-                    const groupMetadata = await client.groupMetadata(from);
-                    const match = groupMetadata.participants.find(p => p.lid === lid || p.id === lid);
-                    return match?.pn || null;
-                };
-
-                client.getLidFromJid = async (jid) => {
-                    const groupMetadata = await client.groupMetadata(from);
-                    const match = groupMetadata.participants.find(p => p.jid === jid || p.id === jid);
-                    return match?.lid || null;
-                }; 
-	  
     // Create superUser array safely
     const superUser = [
         ownerJid,
-        ...owner.map(num => `${num}@s.whatsapp.net`),
-		botJidd
+        ...owner.map(num => `${num}@s.whatsapp.net`)
     ].map(jid => standardizeJid(jid)).filter(Boolean);
 
     const superUserSet = new Set(superUser);
