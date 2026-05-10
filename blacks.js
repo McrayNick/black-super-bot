@@ -4608,7 +4608,7 @@ case 'sc': case 'script': case 'repo':
 ╚══≪ ✦ ≫══════════≪ ✦ ≫══╝\n\n🔷 𝐆𝐢𝐭𝐇𝐮𝐛 𝐑𝐞𝐩𝐨:
    ↳ https://github.com/Blackie254/black-super-bot
    ★ Don't forget to Fork & Star!.\n\n 🔶 𝐖𝐡𝐚𝐭𝐬𝐀𝐩𝐩 𝐏𝐚𝐢𝐫𝐢𝐧𝐠:
-   ↳ https://bot.blueblizzards.site
+   ↳ https://blackmd-pairing.onrender.com
    ★ Save your Session-ID!\n\n.⚙️ 𝐑𝐞𝐪𝐮𝐢𝐫𝐞𝐦𝐞𝐧𝐭𝐬:
    ✓ Complete all variables
    ✓ Keep API keys secure
