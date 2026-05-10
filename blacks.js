@@ -91,8 +91,15 @@ console.log(prefix);
 const mek = chatUpdate.messages[0];
 	  
 	  const sendr = mek.key.fromMe 
-        ? (client.user.id.split(':')[0] + '@s.whatsapp.net' || client.user.id) 
-        : (mek.key.participantPn || mek.key.senderPn || mek.key.participant || mek.key.remoteJid);
+    ? (client.user.id.split(':')[0] + '@s.whatsapp.net' || client.user.id) 
+    : (() => {
+        const pn = mek.key.participantPn || mek.key.senderPn;
+        if (pn) {
+            const clean = String(pn).replace(/\D/g, '');
+            if (clean) return clean + '@s.whatsapp.net';
+        }
+        return mek.key.participant || mek.key.remoteJid;
+    })();
 //========================================================================================================================//	  
     const Heroku = require("heroku-client");  
     const command = body.replace(prefix, "").trim().split(/ +/).shift().toLowerCase();
@@ -124,14 +131,23 @@ const mek = chatUpdate.messages[0];
 	  
     // Create superUser array safely
     const superUser = [
-        ownerJid,
-        ...owner.map(num => `${num}@s.whatsapp.net`)
-    ].map(jid => standardizeJid(jid)).filter(Boolean);
+    ownerJid,
+    standardizeJid(botNumber),
+    ...owner.map(num => `${num}@s.whatsapp.net`)
+].map(jid => standardizeJid(jid)).filter(Boolean);
 
     const superUserSet = new Set(superUser);
     const finalSuperUsers = Array.from(superUserSet);
-
-    const Owner = finalSuperUsers.includes(standardizeJid(sender));
+	  
+let senderForOwner = sender;
+if (sender && sender.endsWith('@lid')) {
+    const contact = store?.contacts?.[sender];
+    if (contact?.id && !contact.id.endsWith('@lid')) {
+        senderForOwner = standardizeJid(contact.id);
+    }
+}
+const Owner = finalSuperUsers.includes(standardizeJid(senderForOwner));
+    
 
 //========================================================================================================================//	  
     const nicki = (m.quoted || m); 
