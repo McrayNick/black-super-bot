@@ -151,7 +151,7 @@ const mek = chatUpdate.messages[0];
     // Create superUser array safely
     const superUser = [
         ownerJid,
-        botJidd,
+        botNumber,
         ...owner.map(num => `${num}@s.whatsapp.net`)
     ].map(jid => standardizeJid(jid)).filter(Boolean);
 
