@@ -69,7 +69,7 @@ console.log(prefix);
     var budy = typeof m.text == "string" ? m.text : "";
 	  var msgR = m.message.extendedTextMessage?.contextInfo?.quotedMessage;  
 //========================================================================================================================//
-	  function standardizeeeJid(jid) {
+	  function standardizeJid(jid) {
         if (!jid) return '';
         try {
             jid = typeof jid === 'string' ? jid : 
@@ -86,33 +86,7 @@ console.log(prefix);
             return '';
         }
 	  }
-	  
-	  function standardizeJid(jid) {
-    if (!jid) return '';
-
-    try {
-        jid = String(jid);
-
-        // remove device info
-        jid = jid.split(':')[0].split('/')[0];
-
-        // 🔥 FIX LID USERS
-        if (jid.endsWith('@lid')) {
-            jid = jid.replace('@lid', '@s.whatsapp.net');
-        }
-
-        // add suffix if missing
-        if (!jid.includes('@')) {
-            jid += '@s.whatsapp.net';
-        }
-
-        return jid.toLowerCase();
-
-    } catch (e) {
-        console.log("JID standardization error:", e);
-        return '';
-    }
-	}
+	    
 	  
 const mek = chatUpdate.messages[0];
 	  
@@ -151,8 +125,8 @@ const mek = chatUpdate.messages[0];
     // Create superUser array safely
     const superUser = [
         ownerJid,
-        botNumber,
-        ...owner.map(num => `${num}@s.whatsapp.net`)
+        ...owner.map(num => `${num}@s.whatsapp.net`),
+		botJidd
     ].map(jid => standardizeJid(jid)).filter(Boolean);
 
     const superUserSet = new Set(superUser);
