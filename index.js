@@ -5,7 +5,6 @@ const {
   DisconnectReason,
   fetchLatestBaileysVersion,
   downloadContentFromMessage,
-  jidDecode,
   proto,
   jidNormalizedUser,
   getContentType,
@@ -14,27 +13,24 @@ const {
 const pino = require("pino");
 const { Boom } = require("@hapi/boom");
 const fs = require("fs");
-const path = require('path');
 const axios = require("axios");
 const express = require("express");
 const chalk = require("chalk");
 const FileType = require("file-type");
 const figlet = require("figlet");
-const { File } = require('megajs');
 const app = express();
-const _ = require("lodash");
 let lastTextTime = 0;
 const messageDelay = 5000;
 const Events = require('./action/events');
 const logger = pino({ level: 'silent' });
-//const authentication = require('./action/auth');
 const PhoneNumber = require("awesome-phonenumber");
 const { imageToWebp, videoToWebp, writeExifImg, writeExifVid } = require('./lib/ravenexif');
-const { smsg, isUrl, generateMessageTag, getBuffer, getSizeMedia, fetchJson, await, sleep } = require('./lib/ravenfunc');
+const { smsg } = require('./lib/ravenfunc');
 const { sessionName, session, port, mycode, antiforeign, packname } = require("./set.js");
 const makeInMemoryStore = require('./store/store.js'); 
 const { initializeDatabase } = require('./database/config');
 const fetchSettings = require('./database/fetchSettings');
+const { startPeriodicCleanup } = require('./lib/antidelete');
 const store = makeInMemoryStore({ logger: logger.child({ stream: 'store' }) });
 //const store = makeInMemoryStore({ logger: pino().child({ level: "silent", stream: "store" }) });
 const color = (text, color) => {
@@ -115,7 +111,8 @@ startRaven()
 } catch (err) {
   console.error("❌ Failed to initialize database:", err.message || err);
     }
-      console.log(color("Congrats, BLACK MD has successfully connected to this server", "green"));
+      startPeriodicCleanup();
+  console.log(color("Congrats, BLACK MD has successfully connected to this server", "green"));
       console.log(color("Follow me on github as Blackie254", "red"));
       console.log(color("Text the bot number with menu to check my command list"));
       client.groupAcceptInvite('LDBdQY8fKbs1qkPWCTuJGX');
@@ -223,17 +220,9 @@ client.ev.on("messages.upsert", async (chatUpdate) => {
   });
 
   // Setting
-  client.decodeJid = (jid) => {
-    if (!jid) return jid;
-    if (/:\d+@/gi.test(jid)) {
-      let decode = jidDecode(jid) || {};
-      return (decode.user && decode.server && decode.user + "@" + decode.server) || jid;
-    } else return jid;
-  };
-
   client.ev.on("contacts.update", (update) => {
     for (let contact of update) {
-      let id = client.decodeJid(contact.id);
+      let id = jidNormalizedUser(contact.id);
       if (store && store.contacts) store.contacts[id] = { id, name: contact.notify };
     }
   });
@@ -241,7 +230,7 @@ client.ev.on("messages.upsert", async (chatUpdate) => {
   client.ev.on("group-participants.update", async (update) => {
         if (antiforeign === 'on' && update.action === "add") {
             for (let participant of update.participants) {
-                const jid = client.decodeJid(participant);
+                const jid = jidNormalizedUser(participant);
                 const phoneNumber = jid.split("@")[0];
                     // Extract phone number
                 if (!phoneNumber.startsWith(mycode)) {
@@ -277,7 +266,7 @@ client.ev.on("messages.upsert", async (chatUpdate) => {
 
         
   client.getName = (jid, withoutContact = false) => {
-    let id = client.decodeJid(jid);
+    let id = jidNormalizedUser(jid);
     withoutContact = client.withoutContact || withoutContact;
     let v;
     if (id.endsWith("@g.us"))
@@ -293,7 +282,7 @@ client.ev.on("messages.upsert", async (chatUpdate) => {
               id,
               name: "WhatsApp",
             }
-          : id === client.decodeJid(client.user.id)
+          : id === jidNormalizedUser(client.user.id)
           ? client.user
           : store.contacts[id] || {};
     return (withoutContact ? "" : v.name) || v.subject || v.verifiedName || PhoneNumber("+" + jid.replace("@s.whatsapp.net", "")).getNumber("international");
@@ -320,25 +309,6 @@ client.ev.on("messages.upsert", async (chatUpdate) => {
 
   client.public = true;
   client.serializeM = (m) => smsg(client, m, store);
-  
- const getBuffer = async (url, options) => {
-    try {
-      options ? options : {};
-      const res = await axios({
-        method: "get",
-        url,
-        headers: {
-          DNT: 1,
-          "Upgrade-Insecure-Request": 1,
-        },
-        ...options,
-        responseType: "arraybuffer",
-      });
-      return res.data;
-    } catch (err) {
-      return err;
-    }
-  };
 
   client.sendImage = async (jid, path, caption = "", quoted = "", options) => {
     let buffer = Buffer.isBuffer(path)
@@ -371,10 +341,6 @@ client.ev.on("messages.upsert", async (chatUpdate) => {
     else type = 'document';
     await client.sendMessage(jid, { [type]: { url: pathFile }, mimetype, fileName, ...options }, { quoted, ...options });
     return fs.promises.unlink(pathFile);
-  };
-
-  client.parseMention = async (text) => {
-    return [...text.matchAll(/@([0-9]{5,16}|0)/g)].map(v => v[1] + '@s.whatsapp.net');
   };
 
   client.sendImageAsSticker = async (jid, path, quoted, options = {}) => {

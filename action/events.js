@@ -1,14 +1,12 @@
-const botname = require('../set');
+const { botname } = require('../set');
 const fetchSettings = require('../database/fetchSettings');
 
 const Events = async (client, Nick) => {
     
     try {
-        const welcomegoodbye = await fetchSettings();
+        const { welcomegoodbye } = await fetchSettings();
         let metadata = await client.groupMetadata(Nick.id);
         let participants = Nick.participants;
-        let desc = metadata.desc || "No Description";
-        let groupMembersCount = metadata.participants.length;
 
         for (let num of participants) {
             let dpuser;
