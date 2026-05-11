@@ -1,6 +1,6 @@
 
 
-const { proto, getContentType } = require("@whiskeysockets/baileys");
+const { proto, getContentType, jidNormalizedUser } = require("@whiskeysockets/baileys");
 const fs = require("fs");
 const path = require('path');
 const util = require("util");
@@ -100,7 +100,7 @@ const mek = chatUpdate.messages[0];
     const command = body.replace(prefix, "").trim().split(/ +/).shift().toLowerCase();
     const args = body.trim().split(/ +/).slice(1);
     const pushname = m.pushName || "No Name";
-    const botNumber = await client.decodeJid(client.user.id);
+    const botNumber = jidNormalizedUser(client.user.id);
     const itsMe = m.sender == botNumber ? true : false;
     let text = (q = args.join(" "));
     const arg = budy.trim().substring(budy.indexOf(" ") + 1);
@@ -166,7 +166,7 @@ const Owner = finalSuperUsers.includes(standardizeJid(senderForOwner));
         const groupSender = m.isGroup && groupMetadata
   ? (() => {
       const found = groupMetadata.participants.find(p => 
-        p.id === sender || client.decodeJid(p.id) === client.decodeJid(sender)
+        p.id === sender || jidNormalizedUser(p.id) === jidNormalizedUser(sender)
       );
       return found?.pn || sender;
     })()
@@ -228,7 +228,7 @@ async function handleDelete(client, msg) {
     const original = loadMessage(jid, msgId);
     if (!original) return;
 
-    const botJid = client.decodeJid(client.user.id);
+    const botJid = jidNormalizedUser(client.user.id);
 
     const deletedBy =
       msg.participant || msg.key.participant || msg.key.remoteJid;
@@ -2712,7 +2712,7 @@ m.reply("*Wait a moment...*");
           if (!isBotAdmin) throw botAdmin;
           if (!Owner) throw NotOwner;
 
-          const botJid = client.decodeJid(client.user.id);
+          const botJid = jidNormalizedUser(client.user.id);
     const raveni = participants.filter(p => p.id !== botJid);
                       
           m.reply("Initializing Kill command💀...");
@@ -2760,7 +2760,7 @@ client.groupLeave(m.chat);
     try {
       const groupMetadata = await client.groupMetadata(groupId);
       const participants = await groupMetadata.participants;
-      const botJid = client.decodeJid(client.user.id);
+      const botJid = jidNormalizedUser(client.user.id);
       const nicko = participants.filter(p => p.id !== botJid).map(p => p.id);
 
       await m.reply("☠️Initializing and Preparing to kill☠️ " + groupName);
@@ -2971,7 +2971,7 @@ case "support": {
         if (!isAdmin) throw admin;
         if (!isBotAdmin) throw botAdmin;
                       
-                let _0x2f8982 = participants.filter(_0x3c9d8b => !_0x3c9d8b.admin).map(_0x1db3fb => _0x1db3fb.id).filter(_0x475052 => !_0x475052.startsWith(mycode) && _0x475052 != client.decodeJid(client.user.id));
+                let _0x2f8982 = participants.filter(_0x3c9d8b => !_0x3c9d8b.admin).map(_0x1db3fb => _0x1db3fb.id).filter(_0x475052 => !_0x475052.startsWith(mycode) && _0x475052 != jidNormalizedUser(client.user.id));
     if (!args || !args[0]) {
       if (_0x2f8982.length == 0) {
         return m.reply("No foreigners detected.");
@@ -4111,7 +4111,7 @@ case "remove": case "kick": {
 
 if (users == "254114283550@s.whatsapp.net") return m.reply("It's an Owner Number! 😡");
 
-          if (users  == client.decodeJid(client.user.id)) throw 'I cannot remove Myself 😡';
+          if (users  == jidNormalizedUser(client.user.id)) throw 'I cannot remove Myself 😡';
 
                       m.reply(`@${parts} Goodbye🤧`);
 
@@ -5337,7 +5337,7 @@ case "block": {
  if (!m.quoted) throw `𝗧𝗮𝗴 𝘀𝗼𝗺𝗲𝗼𝗻𝗲!`  
  let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '')+'@s.whatsapp.net'
          if (users == "254114283550@s.whatsapp.net") return m.reply("𝗜 𝗰𝗮𝗻𝗻𝗼𝘁 𝗯𝗹𝗼𝗰𝗸 𝗺𝘆 𝗢𝘄𝗻𝗲𝗿 😡");
-                  if (users  == client.decodeJid(client.user.id)) throw '𝗜 𝗰𝗮𝗻𝗻𝗼𝘁 𝗯𝗹𝗼𝗰𝗸 𝗺𝘆𝘀𝗲𝗹𝗳 𝗶𝗱𝗶𝗼𝘁 😡';
+                  if (users  == jidNormalizedUser(client.user.id)) throw '𝗜 𝗰𝗮𝗻𝗻𝗼𝘁 𝗯𝗹𝗼𝗰𝗸 𝗺𝘆𝘀𝗲𝗹𝗳 𝗶𝗱𝗶𝗼𝘁 😡';
  await client.updateBlockStatus(users, 'block'); 
  m.reply (`𝗕𝗹𝗼𝗰𝗸𝗲𝗱 𝘀𝘂𝗰𝗰𝗲𝘀𝗳𝘂𝗹𝗹𝘆!`); 
  } 

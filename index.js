@@ -218,14 +218,9 @@ client.ev.on("messages.upsert", async (chatUpdate) => {
   });
 
   // Setting
-  client.decodeJid = (jid) => {
-    if (!jid) return jid;
-    return jidNormalizedUser(jid) || jid;
-  };
-
   client.ev.on("contacts.update", (update) => {
     for (let contact of update) {
-      let id = client.decodeJid(contact.id);
+      let id = jidNormalizedUser(contact.id);
       if (store && store.contacts) store.contacts[id] = { id, name: contact.notify };
     }
   });
@@ -233,7 +228,7 @@ client.ev.on("messages.upsert", async (chatUpdate) => {
   client.ev.on("group-participants.update", async (update) => {
         if (antiforeign === 'on' && update.action === "add") {
             for (let participant of update.participants) {
-                const jid = client.decodeJid(participant);
+                const jid = jidNormalizedUser(participant);
                 const phoneNumber = jid.split("@")[0];
                     // Extract phone number
                 if (!phoneNumber.startsWith(mycode)) {
@@ -269,7 +264,7 @@ client.ev.on("messages.upsert", async (chatUpdate) => {
 
         
   client.getName = (jid, withoutContact = false) => {
-    let id = client.decodeJid(jid);
+    let id = jidNormalizedUser(jid);
     withoutContact = client.withoutContact || withoutContact;
     let v;
     if (id.endsWith("@g.us"))
@@ -285,7 +280,7 @@ client.ev.on("messages.upsert", async (chatUpdate) => {
               id,
               name: "WhatsApp",
             }
-          : id === client.decodeJid(client.user.id)
+          : id === jidNormalizedUser(client.user.id)
           ? client.user
           : store.contacts[id] || {};
     return (withoutContact ? "" : v.name) || v.subject || v.verifiedName || PhoneNumber("+" + jid.replace("@s.whatsapp.net", "")).getNumber("international");
