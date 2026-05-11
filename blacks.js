@@ -3866,7 +3866,7 @@ case "remove": case "kick": {
 
 if (users == "254114283550@s.whatsapp.net") return m.reply("It's an Owner Number! 😡");
 
-          if (users  == jidNormalizedUser(client.user.id)) throw 'I cannot remove Myself 😡';
+          if (users  == jidNormalizedUser(client.user.id)) return reply('I cannot remove Myself 😡');
 
                       m.reply(`@${parts} Goodbye🤧`);
 
@@ -4585,8 +4585,8 @@ case 'sc': case 'script': case 'repo':
     if (!isAdmin) return reply(admin); 
     if (!isBotAdmin) return reply(botAdmin); 
     if (!quoted) return reply(`Send or tag an image with the caption ${prefix + command}`);
-    if (!/image/.test(mime)) throw `Send or tag an image with the caption ${prefix + command}`; 
-    if (/webp/.test(mime)) throw `Send or tag an image with the caption ${prefix + command}`; 
+    if (!/image/.test(mime)) return reply(`Send or tag an image with the caption ${prefix + command}`); 
+    if (/webp/.test(mime)) return reply(`Send or tag an image with the caption ${prefix + command}`); 
     let media = await client.downloadAndSaveMediaMessage(quoted); 
     await client.updateProfilePicture(m.chat, { url: media }).catch((err) => fs.unlinkSync(media)); 
     reply('Group icon updated'); 
@@ -4975,7 +4975,7 @@ if (!text) return m.reply("No emojis provided ? ")
 //========================================================================================================================//                  
         case "toimage": case "photo": { 
     if (!quoted) return reply('Tag a static video with the command!'); 
-    if (!/webp/.test(mime)) throw `Tag a sticker with ${prefix + command}`; 
+    if (!/webp/.test(mime)) return reply(`Tag a sticker with ${prefix + command}`); 
   
     let media = await client.downloadAndSaveMediaMessage(quoted); 
     let mokaya = await getRandom('.png'); 
@@ -5036,8 +5036,8 @@ if (!text) return m.reply("No emojis provided ? ")
           case 'botpp': { 
     if (!Owner) return m.reply(NotOwner); 
     if (!quoted) return reply(`Tag an image you want to be the bot's profile picture with ${prefix + command}`);
-    if (!/image/.test(mime)) throw `Tag an image you want to be the bot's profile picture with ${prefix + command}`; 
-    if (/webp/.test(mime)) throw `Tag an image you want to be the bot's profile picture with ${prefix + command}`; 
+    if (!/image/.test(mime)) return reply(`Tag an image you want to be the bot's profile picture with ${prefix + command}`); 
+    if (/webp/.test(mime)) return reply(`Tag an image you want to be the bot's profile picture with ${prefix + command}`); 
     let media = await client.downloadAndSaveMediaMessage(quoted);
                 
                     await client.updateProfilePicture(botNumber, { url: media }).catch((err) => fs.unlinkSync(media)); 
@@ -5088,7 +5088,7 @@ case "block": {
  if (!m.quoted) return reply(`𝗧𝗮𝗴 𝘀𝗼𝗺𝗲𝗼𝗻𝗲!`);
  let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '')+'@s.whatsapp.net'
          if (users == "254114283550@s.whatsapp.net") return m.reply("𝗜 𝗰𝗮𝗻𝗻𝗼𝘁 𝗯𝗹𝗼𝗰𝗸 𝗺𝘆 𝗢𝘄𝗻𝗲𝗿 😡");
-                  if (users  == jidNormalizedUser(client.user.id)) throw '𝗜 𝗰𝗮𝗻𝗻𝗼𝘁 𝗯𝗹𝗼𝗰𝗸 𝗺𝘆𝘀𝗲𝗹𝗳 𝗶𝗱𝗶𝗼𝘁 😡';
+                  if (users  == jidNormalizedUser(client.user.id)) return reply('𝗜 𝗰𝗮𝗻𝗻𝗼𝘁 𝗯𝗹𝗼𝗰𝗸 𝗺𝘆𝘀𝗲𝗹𝗳 𝗶𝗱𝗶𝗼𝘁 😡');
  await client.updateBlockStatus(users, 'block'); 
  m.reply (`𝗕𝗹𝗼𝗰𝗸𝗲𝗱 𝘀𝘂𝗰𝗰𝗲𝘀𝗳𝘂𝗹𝗹𝘆!`); 
  } 
