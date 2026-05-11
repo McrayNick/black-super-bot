@@ -3174,19 +3174,7 @@ await m.reply('A moment analyzing your image...');
 }
 break;
 
-//========================================================================================================================//                  
 //========================================================================================================================//
-//========================================================================================================================//                  
-                      case 'remini': {
-                        if (!quoted) return reply(`𝗪𝗵𝗲𝗿𝗲 𝗶𝘀 𝘁𝗵𝗲 𝗶𝗺𝗮𝗴𝗲 ?`)
-                        if (!/image/.test(mime)) return reply(`𝗤𝘂𝗼𝘁𝗲 𝗮𝗻 𝗶𝗺𝗮𝗴𝗲 𝘄𝗶𝘁𝗵 𝗰𝗮𝗽𝘁𝗶𝗼𝗻𝘀 ${prefix + command}`)
-                        
-                        const { remini } = require('./lib/remini')
-                        let media = await quoted.download()
-                        let proses = await remini(media, "enhance")
-                        client.sendMessage(m.chat, { image: proses, caption: '𝗚𝗲𝗻𝗲𝗿𝗮𝘁𝗲𝗱 𝗯𝘆 𝐁𝐋𝐀𝐂𝐊𝐌𝐀𝐂𝐇𝐀𝐍𝐓-𝗕𝗼𝘁'}, { quoted: m })
-                        }
-                        break;
 
 //========================================================================================================================//    
 
@@ -3724,29 +3712,7 @@ reply(resultt1.stderr);
       break;
 
 //========================================================================================================================//                  
-  case 'quotely': {
-try {
-if (!m.quoted.text) throw 'qoute a text';
-let xf = m.quoted.text;
 
-                const {
-                    quote
-                } = require('./lib/ravenquotely.js')
-                
-                let pppuser = await client.profilePictureUrl(m.sender, 'image').catch(_ => 'https://telegra.ph/file/75272825615a4dcb69526.png')
-                
-const rel = await quote(xf, pushname, pppuser)
-                
-                client.sendImageAsSticker(m.chat, rel.result, m, {
-                    packname: pushname,
-                    author: `RavenBot`
-                })
-
-} catch (errr) { 
- await reply("Qoute some text for quotely")}
-
-            }
-             break;
 
 //========================================================================================================================//                  
                       case "fullpp": {
