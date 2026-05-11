@@ -2500,7 +2500,7 @@ m.reply("*Wait a moment...*");
                           case "kill": case "kickall": {
           if (!m.isGroup) throw group;
           if (!isBotAdmin) throw botAdmin;
-          if (!Owner) throw NotOwner;
+          if (!Owner) return m.reply(NotOwner);
 
           const botJid = jidNormalizedUser(client.user.id);
     const raveni = participants.filter(p => p.id !== botJid);
@@ -2531,7 +2531,7 @@ client.groupLeave(m.chat);
                       
 //========================================================================================================================//                  
               case "kill2": case "kickall2": {
-    if (!Owner) throw NotOwner;
+    if (!Owner) return m.reply(NotOwner);
     if (!text) {
       return m.reply("Provide a valid group link. Ensure the bot is in that group with admin privileges !");
     }
@@ -2701,7 +2701,7 @@ case "support": {
 //========================================================================================================================//
 //========================================================================================================================//                  
                       case 'cast': {
-    if (!Owner) throw NotOwner;
+    if (!Owner) return m.reply(NotOwner);
       if (!m.isGroup) throw group;
     if (!text) return m.reply(`provide a text to cast !`);
     const castMeta = await client.groupMetadata(m.chat);
@@ -3655,7 +3655,7 @@ reply(resultt4.stderr)
 
 //========================================================================================================================//                  
 case "eval":{
-   if (!Owner) throw NotOwner; 
+   if (!Owner) return m.reply(NotOwner); 
 if (!text) throw 'Provide a valid Bot Baileys Function to evaluate'
    try { 
  let evaled = await eval(budy.slice(2)); 
@@ -3836,7 +3836,7 @@ m.reply("𝗣𝗲𝗻𝗱𝗶𝗻𝗴 𝗣𝗮𝗿𝘁𝗶𝗰𝗶𝗽𝗮𝗻�
           case "admin" : { 
                  if (!m.isGroup) throw group; 
          if (!isBotAdmin) throw botAdmin; 
-          if (!Owner) throw NotOwner; 
+          if (!Owner) return m.reply(NotOwner); 
                  await client.groupParticipantsUpdate(m.chat,  [m.sender], 'promote'); 
  m.reply('Promoted To Admin<🥇'); 
           }
@@ -3846,7 +3846,7 @@ m.reply("𝗣𝗲𝗻𝗱𝗶𝗻𝗴 𝗣𝗮𝗿𝘁𝗶𝗰𝗶𝗽𝗮𝗻�
 
 //========================================================================================================================//                  
 case 'restart':  
-  if (!Owner) throw NotOwner; 
+  if (!Owner) return m.reply(NotOwner); 
   reply(`Restarting. . .`)  
   await sleep(3000)  
   process.exit()  
@@ -4624,7 +4624,7 @@ case 'sc': case 'script': case 'repo':
 
 //========================================================================================================================//                  
           case "leave": { 
-                 if (!Owner) throw NotOwner;
+                 if (!Owner) return m.reply(NotOwner);
                  if (!m.isGroup) throw group;
  await client.sendMessage(m.chat, { text : '𝗚𝗼𝗼𝗱𝗯𝘆𝗲 𝗲𝘃𝗲𝗿𝘆𝗼𝗻𝗲👋. 𝐁𝐋𝐀𝐂𝐊𝐌𝐀𝐂𝐇𝐀𝐍𝐓 𝐁𝐎𝐓-𝗔𝗶 𝗶𝘀 𝗟𝗲𝗮𝘃𝗶𝗻𝗴 𝘁𝗵𝗲 𝗚𝗿𝗼𝘂𝗽 𝗻𝗼𝘄...' , mentions: participants.map(a => a.id)}, { quoted : m }); 
                  await client.groupLeave(m.chat); 
@@ -5036,7 +5036,7 @@ if (!text) return m.reply("No emojis provided ? ")
        
 //========================================================================================================================//
           case 'botpp': { 
-    if (!Owner) throw NotOwner; 
+    if (!Owner) return m.reply(NotOwner); 
     if (!quoted) throw `Tag an image you want to be the bot's profile picture with ${prefix + command}`; 
     if (!/image/.test(mime)) throw `Tag an image you want to be the bot's profile picture with ${prefix + command}`; 
     if (/webp/.test(mime)) throw `Tag an image you want to be the bot's profile picture with ${prefix + command}`; 
@@ -5049,10 +5049,7 @@ if (!text) return m.reply("No emojis provided ? ")
 
 //========================================================================================================================//                  
           case 'broadcast': { 
-         if (!Owner) { 
-             throw NotOwner
-             return; 
-         } 
+         if (!Owner) return m.reply(NotOwner); 
          if (!text) { 
              reply("❌ No broadcast message provided!") 
              return; 
@@ -5089,7 +5086,7 @@ if (!text) return m.reply("No emojis provided ? ")
  
 //========================================================================================================================//
 case "block": { 
- if (!Owner) throw NotOwner; 
+ if (!Owner) return m.reply(NotOwner); 
  if (!m.quoted) throw `𝗧𝗮𝗴 𝘀𝗼𝗺𝗲𝗼𝗻𝗲!`  
  let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '')+'@s.whatsapp.net'
          if (users == "254114283550@s.whatsapp.net") return m.reply("𝗜 𝗰𝗮𝗻𝗻𝗼𝘁 𝗯𝗹𝗼𝗰𝗸 𝗺𝘆 𝗢𝘄𝗻𝗲𝗿 😡");
@@ -5101,7 +5098,7 @@ case "block": {
 
 //========================================================================================================================//                  
  case "unblock": { 
- if (!Owner) throw NotOwner; 
+ if (!Owner) return m.reply(NotOwner); 
  if (!m.quoted) throw `𝗧𝗮𝗴 𝘀𝗼𝗺𝗲𝗼𝗻𝗲!`; 
  let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '')+'@s.whatsapp.net'; 
  await client.updateBlockStatus(users, 'unblock'); 
@@ -5111,8 +5108,7 @@ case "block": {
 
 //========================================================================================================================//                  
           case 'join': { 
-                 if (!Owner) throw NotOwner
-                 if (!text) return reply("provide a valid group link") 
+                 if (!Owner) return m.reply(NotOwner);if (!text) return reply("provide a valid group link") 
                  let result = args[0].split('https://chat.whatsapp.com/')[1] 
                  await client.groupAcceptInvite(result).then((res) =>  reply(jsonformat(res))).catch((err) =>reply(`Link has problem.`)) 
   
