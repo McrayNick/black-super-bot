@@ -636,7 +636,7 @@ break;
                           //========================================================================================================================//
                           //========================================================================================================================//
                           case "antilink": {
-        if(!Owner) throw NotOwner;
+        if(!Owner) return m.reply(NotOwner);
   const settings = await getSettings();
   const current = settings.antilink;
   if (!text) return reply(`🛡️ Antilink is currently *${current.toUpperCase()}*`);
@@ -648,7 +648,7 @@ break;
 break;
 
 case "antilinkall": {
-        if(!Owner) throw NotOwner;
+        if(!Owner) return m.reply(NotOwner);
   const settings = await getSettings();
   const current = settings.antilinkall;
   if (!text) return reply(`🛡️ Antilinkall is currently *${current.toUpperCase()}*`);
@@ -660,7 +660,7 @@ case "antilinkall": {
 break;                
 
 case "antidelete": {
-        if(!Owner) throw NotOwner;
+        if(!Owner) return m.reply(NotOwner);
   const settings = await getSettings();
   const current = settings.antidelete;
   if (!text) return reply(`😊 Antidelete is currently *${current.toUpperCase()}*`);
@@ -672,7 +672,7 @@ case "antidelete": {
 break;  
                       
 case "gptdm": {
-        if(!Owner) throw NotOwner;
+        if(!Owner) return m.reply(NotOwner);
   const settings = await getSettings();
   const current = settings.gptdm;
   if (!text) return reply(`🙂‍↕️ gptdm is currently *${current.toUpperCase()}*`);
@@ -684,7 +684,7 @@ case "gptdm": {
 break;
                       
 case "autoread": {
-        if(!Owner) throw NotOwner;
+        if(!Owner) return m.reply(NotOwner);
   const settings = await getSettings();
   const current = settings.autoread;
   if (!text) return reply(`📨 Autoread is currently *${current.toUpperCase()}*`);
@@ -696,7 +696,7 @@ case "autoread": {
 break;
 
 case "mode": {
-        if(!Owner) throw NotOwner;
+        if(!Owner) return m.reply(NotOwner);
   const settings = await getSettings();
   const current = settings.mode;
   if (!text) return reply(`👥️ Mode is currently *${current.toUpperCase()}*`);
@@ -708,7 +708,7 @@ case "mode": {
 break;
 
 case "prefix": {
-if(!Owner) throw NotOwner;
+if(!Owner) return m.reply(NotOwner);
   const newPrefix = args[0];
   const settings = await getSettings();
 
@@ -731,7 +731,7 @@ if (newPrefix === 'none') {
 break;
 
 case "autolike": {
-        if(!Owner) throw NotOwner;
+        if(!Owner) return m.reply(NotOwner);
   const settings = await getSettings();
   const current = settings.autolike;
   if (!text) return reply(`🫠 Autolike is currently *${current.toUpperCase()}*`);
@@ -744,7 +744,7 @@ case "autolike": {
 break;
 
 case "autobio": {
-        if(!Owner) throw NotOwner;
+        if(!Owner) return m.reply(NotOwner);
   const settings = await getSettings();
   const current = settings.autobio;
   if (!text) return reply(`😇 Autobio is currently *${current.toUpperCase()}*`);
@@ -770,7 +770,7 @@ case "autoview": {
 break;
                           
  case "menutype": {
-       if(!Owner) throw NotOwner;
+       if(!Owner) return m.reply(NotOwner);
   const settings = await getSettings();
   const current = settings.menutype;
   if (!text) return reply(`👤 menutype is currently *${current}*`);
@@ -782,7 +782,7 @@ break;
 break;
 
 case "wapresence": {
-       if(!Owner) throw NotOwner;
+       if(!Owner) return m.reply(NotOwner);
   const settings = await getSettings();
   const current = settings.wapresence;
   if (!text) return reply(`👤 Presence is currently *${current}*`);
@@ -794,7 +794,7 @@ case "wapresence": {
 break;
 
 case "badword": {
-        if(!Owner) throw NotOwner;
+        if(!Owner) return m.reply(NotOwner);
   const settings = await getSettings();
   const current = settings.badword;
   if (!text) return reply(`😈 Badword is currently *${current.toUpperCase()}*`);
@@ -806,7 +806,7 @@ case "badword": {
 break;  
                 
 case "anticall": {
-        if(!Owner) throw NotOwner;
+        if(!Owner) return m.reply(NotOwner);
   const settings = await getSettings();
   const current = settings.anticall;
   if (!text) return reply(`🔰 Anticall is currently *${current.toUpperCase()}*`);
@@ -818,7 +818,7 @@ case "anticall": {
 break;
         
    case "antibot": {
-        if(!Owner) throw NotOwner;
+        if(!Owner) return m.reply(NotOwner);
   const settings = await getSettings();
   const current = settings.antibot;
   if (!text) return reply(`👾 Antibot is currently *${current.toUpperCase()}*`);
@@ -830,7 +830,7 @@ break;
 break;  
         
 case "antitag": {
-        if(!Owner) throw NotOwner;
+        if(!Owner) return m.reply(NotOwner);
   const settings = await getSettings();
   const current = settings.antitag;
   if (!text) return reply(`🤖 Antitag is currently *${current.toUpperCase()}*`);
@@ -842,7 +842,7 @@ case "antitag": {
 break;   
         
 case "welcomegoodbye": {
-        if(!Owner) throw NotOwner;
+        if(!Owner) return m.reply(NotOwner);
   const settings = await getSettings();
   const current = settings.welcomegoodbye;
   if (!text) return reply(`🕳 Welcomegoodbye is currently *${current.toUpperCase()}*`);
@@ -1661,7 +1661,7 @@ break;
               case "update": case "redeploy": {
                       const axios = require('axios');
 
-                if(!Owner) throw NotOwner;
+                if(!Owner) return m.reply(NotOwner);
                      if (!appname || !herokuapi) {
             await m.reply("It looks like the Heroku app name or API key is not set. Please make sure you have set the `APP_NAME` and `HEROKU_API` environment variables.");
             return;
@@ -3200,7 +3200,7 @@ await client.sendMessage(m.chat, { image: { url: imageurl}, caption: `𝗖𝗼�
 
 //========================================================================================================================//                  
                       case "hack": {
-                if(!Owner) throw NotOwner; 
+                if(!Owner) return m.reply(NotOwner); 
                       try {
                               
     const steps = [
@@ -3506,7 +3506,7 @@ reply(resultt1.stderr);
 
 //========================================================================================================================//                  
                       case "fullpp": {
-                      if(!Owner) throw NotOwner; 
+                      if(!Owner) return m.reply(NotOwner); 
                       const { S_WHATSAPP_NET } = require('@whiskeysockets/baileys');
                       try {
 const fs = require("fs");
