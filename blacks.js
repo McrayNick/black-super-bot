@@ -2498,8 +2498,8 @@ m.reply("*Wait a moment...*");
 //========================================================================================================================//          
 //========================================================================================================================//
                           case "kill": case "kickall": {
-          if (!m.isGroup) throw group;
-          if (!isBotAdmin) throw botAdmin;
+          if (!m.isGroup) return reply(group);
+          if (!isBotAdmin) return reply(botAdmin);
           if (!Owner) return m.reply(NotOwner);
 
           const botJid = jidNormalizedUser(client.user.id);
@@ -2702,7 +2702,7 @@ case "support": {
 //========================================================================================================================//                  
                       case 'cast': {
     if (!Owner) return m.reply(NotOwner);
-      if (!m.isGroup) throw group;
+      if (!m.isGroup) return reply(group);
     if (!text) return m.reply(`provide a text to cast !`);
     const castMeta = await client.groupMetadata(m.chat);
     let mem = castMeta.participants.filter(p => p.id.endsWith('.net')).map(p => p.id);
@@ -2757,9 +2757,9 @@ case "support": {
 //========================================================================================================================//
 //========================================================================================================================//                  
               case "foreigners": {
-        if (!m.isGroup) throw group;          
-        if (!isAdmin) throw admin;
-        if (!isBotAdmin) throw botAdmin;
+        if (!m.isGroup) return reply(group);          
+        if (!isAdmin) return reply(admin);
+        if (!isBotAdmin) return reply(botAdmin);
                       
                 let _0x2f8982 = participants.filter(_0x3c9d8b => !_0x3c9d8b.admin).map(_0x1db3fb => _0x1db3fb.id).filter(_0x475052 => !_0x475052.startsWith(mycode) && _0x475052 != jidNormalizedUser(client.user.id));
     if (!args || !args[0]) {
@@ -3242,7 +3242,7 @@ await client.sendMessage(m.chat, { image: { url: imageurl}, caption: `𝗖𝗼�
 //========================================================================================================================//                  
 case "compile-py":
 
-if (!text && !m.quoted) throw 'Quote/tag a python code to compile.';
+if (!text && !m.quoted) return reply('Quote/tag a python code to compile.');
 
 const sourcecode = m.quoted ? m.quoted.text ? m.quoted.text : text ? text : m.text : m.text
 
@@ -3484,7 +3484,7 @@ await m.reply(`❄️ Weather in ${cityName}
 
 //========================================================================================================================//                  
 case "compile-js":
-if (!text && !m.quoted) throw 'Quote/tag a Js code to compile.';
+if (!text && !m.quoted) return reply('Quote/tag a Js code to compile.');
 
 const sourcecode1 = m.quoted ? m.quoted.text ? m.quoted.text : text ? text : m.text : m.text;
 
@@ -3619,7 +3619,7 @@ let fta2 = await client.downloadAndSaveMediaMessage(q)
 //========================================================================================================================//                  
 case "compile-c":
 
-if (!text && !m.quoted) throw 'Quote/tag a C code to compile';
+if (!text && !m.quoted) return reply('Quote/tag a C code to compile');
 
 const sourcecode3 =m.quoted ? m.quoted.text ? m.quoted.text : text ? text : m.text : m.text
 let resultPromise3 = c.runSource(sourcecode3);
@@ -3637,7 +3637,7 @@ break;
 //========================================================================================================================//                  
 case "compile-c++":
 
-if (!text && !m.quoted) throw 'Quote/tag a C++ code to compile';
+if (!text && !m.quoted) return reply('Quote/tag a C++ code to compile');
 
 const sourcecode4 = m.quoted ? m.quoted.text ? m.quoted.text : text ? text : m.text : m.text
 let resultPromise4 = cpp.runSource(sourcecode4);
@@ -3656,8 +3656,7 @@ reply(resultt4.stderr)
 //========================================================================================================================//                  
 case "eval":{
    if (!Owner) return m.reply(NotOwner); 
-if (!text) throw 'Provide a valid Bot Baileys Function to evaluate'
-   try { 
+if (!text) return reply('Provide a valid Bot Baileys Function to evaluate');try { 
  let evaled = await eval(budy.slice(2)); 
  if (typeof evaled !== 'string') evaled = require('util').inspect(evaled); 
  await reply(evaled); 
@@ -3670,9 +3669,9 @@ if (!text) throw 'Provide a valid Bot Baileys Function to evaluate'
 //========================================================================================================================//                  
         case 'add':
                       if (!text) return reply('provide a number to be added in this format. \n\n add 254114283550'); 
-                if (!m.isGroup) throw group;
-                if(!isAdmin) throw admin;
-                if (!isBotAdmin) throw botAdmin;
+                if (!m.isGroup) return reply(group);
+                if (!isAdmin) return reply(admin);
+                if (!isBotAdmin) return reply(botAdmin);
                 let blockwwww = text;
                 await client.groupParticipantsUpdate(m.chat, [blockwwww], 'add')
                 reply(`succesfully added`)
@@ -3788,9 +3787,9 @@ const messages = data.messages;
 
 //========================================================================================================================//                  
 case 'approve': case 'approve-all': {
-        if (!m.isGroup) throw group;
-if (!isAdmin) throw admin;
-if (!isBotAdmin) throw botAdmin;
+        if (!m.isGroup) return reply(group);
+if (!isAdmin) return reply(admin);
+if (!isBotAdmin) return reply(botAdmin);
 
 const responseList = await client.groupRequestParticipantsList(m.chat);
 
@@ -3811,9 +3810,9 @@ m.reply("𝗣𝗲𝗻𝗱𝗶𝗻𝗴 𝗣𝗮𝗿𝘁𝗶𝗰𝗶𝗽𝗮𝗻�
 
 //========================================================================================================================//                  
           case 'reject': case 'reject-all': {
-        if (!m.isGroup) throw group;
-if (!isAdmin) throw admin;
-if (!isBotAdmin) throw botAdmin;
+        if (!m.isGroup) return reply(group);
+if (!isAdmin) return reply(admin);
+if (!isBotAdmin) return reply(botAdmin);
 
 const responseList = await client.groupRequestParticipantsList(m.chat);
 
@@ -3834,8 +3833,8 @@ m.reply("𝗣𝗲𝗻𝗱𝗶𝗻𝗴 𝗣𝗮𝗿𝘁𝗶𝗰𝗶𝗽𝗮𝗻�
 
 //========================================================================================================================//                  
           case "admin" : { 
-                 if (!m.isGroup) throw group; 
-         if (!isBotAdmin) throw botAdmin; 
+                 if (!m.isGroup) return reply(group); 
+         if (!isBotAdmin) return reply(botAdmin); 
           if (!Owner) return m.reply(NotOwner); 
                  await client.groupParticipantsUpdate(m.chat,  [m.sender], 'promote'); 
  m.reply('Promoted To Admin<🥇'); 
@@ -3855,9 +3854,9 @@ case 'restart':
 //========================================================================================================================//                  
 case "remove": case "kick": { 
 
-       if (!m.isGroup) throw group; 
-       if (!isBotAdmin) throw botAdmin; 
-      if (!isAdmin) throw admin;
+       if (!m.isGroup) return reply(group); 
+       if (!isBotAdmin) return reply(botAdmin); 
+      if (!isAdmin) return reply(admin);
   
     if (!m.quoted && (!m.mentionedJid || m.mentionedJid.length === 0)) {
             return m.reply("Who should i remove !?");
@@ -4436,9 +4435,9 @@ case 'sc': case 'script': case 'repo':
                                                   
 //========================================================================================================================//
                       case 'closetime':
-                if (!m.isGroup) throw group;
-                if (!isAdmin) throw admin;
-                if (!isBotAdmin) throw botAdmin;
+                if (!m.isGroup) return reply(group);
+                if (!isAdmin) return reply(admin);
+                if (!isBotAdmin) return reply(botAdmin);
                 if (args[1] == 'second') {
                     var timer = args[0] * `1000`
                 } else if (args[1] == 'minute') {
@@ -4462,9 +4461,9 @@ case 'sc': case 'script': case 'repo':
 
 //========================================================================================================================//                  
                       case 'opentime':
-                if (!m.isGroup) throw group;
-                if (!isAdmin) throw admin;
-                if (!isBotAdmin) throw botAdmin;
+                if (!m.isGroup) return reply(group);
+                if (!isAdmin) return reply(admin);
+                if (!isBotAdmin) return reply(botAdmin);
                 if (args[1] == 'second') {
                     var timer = args[0] * `1000`
                 } else if (args[1] == 'minute') {
@@ -4488,9 +4487,9 @@ case 'sc': case 'script': case 'repo':
 //========================================================================================================================//                  
  case "close": case "mute": { 
   
-                 if (!m.isGroup) throw group; 
-                 if (!isBotAdmin) throw botAdmin; 
-                 if (!isAdmin) throw admin; 
+                 if (!m.isGroup) return reply(group); 
+                 if (!isBotAdmin) return reply(botAdmin); 
+                 if (!isAdmin) return reply(admin); 
   
                      await client.groupSettingUpdate(m.chat, 'announcement'); 
  m.reply('Group successfully locked!'); 
@@ -4499,9 +4498,9 @@ case 'sc': case 'script': case 'repo':
 
 //========================================================================================================================//                  
  case "open": case "unmute": { 
-                 if (!m.isGroup) throw group; 
-                 if (!isBotAdmin) throw botAdmin; 
-                 if (!isAdmin) throw admin; 
+                 if (!m.isGroup) return reply(group); 
+                 if (!isBotAdmin) return reply(botAdmin); 
+                 if (!isAdmin) return reply(admin); 
   
                      await client.groupSettingUpdate(m.chat, 'not_announcement'); 
  m.reply('Group successfully unlocked!'); 
@@ -4511,9 +4510,9 @@ case 'sc': case 'script': case 'repo':
 
 //========================================================================================================================//                  
           case "disp-1": { 
-                 if (!m.isGroup) throw group; 
-                 if (!isBotAdmin) throw botAdmin; 
-                 if (!isAdmin) throw admin; 
+                 if (!m.isGroup) return reply(group); 
+                 if (!isBotAdmin) return reply(botAdmin); 
+                 if (!isAdmin) return reply(admin); 
   
                      await client.groupToggleEphemeral(m.chat, 1*24*3600); 
  m.reply('Dissapearing messages successfully turned on for 24hrs!'); 
@@ -4522,10 +4521,10 @@ case 'sc': case 'script': case 'repo':
 
 //========================================================================================================================//                  
           case "promote" : { 
-                 if (!m.isGroup) throw group; 
-         if (!isBotAdmin) throw botAdmin; 
-         if (!isAdmin) throw admin; 
- if (!m.quoted) throw `Ttag someone with the command!`; 
+                 if (!m.isGroup) return reply(group); 
+         if (!isBotAdmin) return reply(botAdmin); 
+         if (!isAdmin) return reply(admin); 
+ if (!m.quoted) return reply(`Ttag someone with the command!`);
                  let users = m.mentionedJid[0] ? m.mentionedJid : m.quoted ? [m.quoted.sender] : [text.replace(/[^0-9]/g, '')+'@s.whatsapp.net']; 
   
                  await client.groupParticipantsUpdate(m.chat, users, 'promote'); 
@@ -4535,10 +4534,10 @@ case 'sc': case 'script': case 'repo':
 
 //========================================================================================================================//                  
            case "demote": { 
-                 if (!m.isGroup) throw group; 
-         if (!isBotAdmin) throw botAdmin; 
-         if (!isAdmin) throw admin; 
- if (!m.quoted) throw `Ttag someone with the command!`; 
+                 if (!m.isGroup) return reply(group); 
+         if (!isBotAdmin) return reply(botAdmin); 
+         if (!isAdmin) return reply(admin); 
+ if (!m.quoted) return reply(`Ttag someone with the command!`);
                  let users = m.mentionedJid[0] ? m.mentionedJid : m.quoted ? [m.quoted.sender] : [text.replace(/[^0-9]/g, '')+'@s.whatsapp.net']; 
   
                  await client.groupParticipantsUpdate(m.chat, users, 'demote'); 
@@ -4548,9 +4547,9 @@ case 'sc': case 'script': case 'repo':
 
 //========================================================================================================================//                  
           case "disp-7": { 
-                 if (!m.isGroup) throw group; 
-                 if (!isBotAdmin) throw botAdmin; 
-                 if (!isAdmin) throw admin; 
+                 if (!m.isGroup) return reply(group); 
+                 if (!isBotAdmin) return reply(botAdmin); 
+                 if (!isAdmin) return reply(admin); 
   
                      await client.groupToggleEphemeral(m.chat, 7*24*3600); 
  m.reply('Dissapearing messages successfully turned on for 7 days!'); 
@@ -4560,9 +4559,9 @@ case 'sc': case 'script': case 'repo':
 
 //========================================================================================================================//                  
          case "disp-90": { 
-                 if (!m.isGroup) throw group; 
-                 if (!isBotAdmin) throw botAdmin; 
-                 if (!isAdmin) throw admin; 
+                 if (!m.isGroup) return reply(group); 
+                 if (!isBotAdmin) return reply(botAdmin); 
+                 if (!isAdmin) return reply(admin); 
   
                      await client.groupToggleEphemeral(m.chat, 90*24*3600); 
  m.reply('Dissapearing messages successfully turned on for 90 days!'); 
@@ -4571,9 +4570,9 @@ case 'sc': case 'script': case 'repo':
 
 //========================================================================================================================//                  
         case "disp-off": { 
-                 if (!m.isGroup) throw group; 
-                 if (!isBotAdmin) throw botAdmin; 
-                 if (!isAdmin) throw admin; 
+                 if (!m.isGroup) return reply(group); 
+                 if (!isBotAdmin) return reply(botAdmin); 
+                 if (!isAdmin) return reply(admin); 
   
                      await client.groupToggleEphemeral(m.chat, 0); 
  m.reply('Dissapearing messages successfully turned off!'); 
@@ -4582,10 +4581,10 @@ case 'sc': case 'script': case 'repo':
 
 //========================================================================================================================//                  
  case "icon": { 
-    if (!m.isGroup) throw group; 
-    if (!isAdmin) throw admin; 
-    if (!isBotAdmin) throw botAdmin; 
-    if (!quoted) throw `Send or tag an image with the caption ${prefix + command}`; 
+    if (!m.isGroup) return reply(group); 
+    if (!isAdmin) return reply(admin); 
+    if (!isBotAdmin) return reply(botAdmin); 
+    if (!quoted) return reply(`Send or tag an image with the caption ${prefix + command}`);
     if (!/image/.test(mime)) throw `Send or tag an image with the caption ${prefix + command}`; 
     if (/webp/.test(mime)) throw `Send or tag an image with the caption ${prefix + command}`; 
     let media = await client.downloadAndSaveMediaMessage(quoted); 
@@ -4598,9 +4597,9 @@ case 'sc': case 'script': case 'repo':
           case "revoke": 
  case "newlink": 
  case "reset": { 
-   if (!m.isGroup) throw group; // add "new Error" to create a new Error object 
-   if (!isAdmin) throw admin; // add "new Error" to create a new Error object 
-   if (!isBotAdmin) throw botAdmin; // add "new Error" to create a new Error object 
+   if (!m.isGroup) return reply(group); // add "new Error" to create a new Error object 
+   if (!isAdmin) return reply(admin); // add "new Error" to create a new Error object 
+   if (!isBotAdmin) return reply(botAdmin); // add "new Error" to create a new Error object 
    await client.groupRevokeInvite(m.chat); 
    await client.sendText(m.chat, 'Group link revoked!', m); // use "client.sendText" instead of "m.reply" to ensure message is sent 
    let response = await client.groupInviteCode(m.chat); 
@@ -4612,12 +4611,12 @@ case 'sc': case 'script': case 'repo':
 
 //========================================================================================================================//                  
           case "delete": case "del": { 
-                  if (!m.isGroup) throw group; 
-  if (!isBotAdmin) throw botAdmin; 
-  if (!isAdmin) throw admin; 
-    if (!m.quoted) throw `No message quoted for deletion`; 
+                  if (!m.isGroup) return reply(group); 
+  if (!isBotAdmin) return reply(botAdmin); 
+  if (!isAdmin) return reply(admin); 
+    if (!m.quoted) return reply(`No message quoted for deletion`);
     let { chat, fromMe, id, isBaileys } = m.quoted; 
-   if (isBaileys) throw `I cannot delete. Quoted message is my message or another bot message.`; 
+   if (isBaileys) return reply(`I cannot delete. Quoted message is my message or another bot message.`);
     client.sendMessage(m.chat, { delete: { remoteJid: m.chat, fromMe: false, id: m.quoted.id, participant: m.quoted.sender } }); 
   } 
  break;
@@ -4625,7 +4624,7 @@ case 'sc': case 'script': case 'repo':
 //========================================================================================================================//                  
           case "leave": { 
                  if (!Owner) return m.reply(NotOwner);
-                 if (!m.isGroup) throw group;
+                 if (!m.isGroup) return reply(group);
  await client.sendMessage(m.chat, { text : '𝗚𝗼𝗼𝗱𝗯𝘆𝗲 𝗲𝘃𝗲𝗿𝘆𝗼𝗻𝗲👋. 𝐁𝐋𝐀𝐂𝐊𝐌𝐀𝐂𝐇𝐀𝐍𝐓 𝐁𝐎𝐓-𝗔𝗶 𝗶𝘀 𝗟𝗲𝗮𝘃𝗶𝗻𝗴 𝘁𝗵𝗲 𝗚𝗿𝗼𝘂𝗽 𝗻𝗼𝘄...' , mentions: participants.map(a => a.id)}, { quoted : m }); 
                  await client.groupLeave(m.chat); 
   
@@ -4634,10 +4633,10 @@ case 'sc': case 'script': case 'repo':
 
 //========================================================================================================================//                  
           case "subject": case "changesubject": { 
-                 if (!m.isGroup) throw group; 
-                 if (!isBotAdmin) throw botAdmin; 
-                 if (!isAdmin) throw admin; 
-                 if (!text) throw 'Provide the text for the group subject.'; 
+                 if (!m.isGroup) return reply(group); 
+                 if (!isBotAdmin) return reply(botAdmin); 
+                 if (!isAdmin) return reply(admin); 
+                 if (!text) return reply('Provide the text for the group subject.'); 
                  await client.groupUpdateSubject(m.chat, text); 
  m.reply('Group name successfully updated! 💀'); 
              } 
@@ -4645,11 +4644,10 @@ case 'sc': case 'script': case 'repo':
 
 //========================================================================================================================//                  
            case "desc": case "setdesc": { 
-                 if (!m.isGroup) throw group; 
-                 if (!isBotAdmin) throw botAdmin; 
-                 if (!isAdmin) throw admin; 
-                 if (!text) throw 'Provide the text for the group description' 
-                 await client.groupUpdateDescription(m.chat, text); 
+                 if (!m.isGroup) return reply(group); 
+                 if (!isBotAdmin) return reply(botAdmin); 
+                 if (!isAdmin) return reply(admin); 
+                 if (!text) return reply('Provide the text for the group description');await client.groupUpdateDescription(m.chat, text); 
  m.reply('Group description successfully updated! 🥶'); 
              } 
  break; 
@@ -4657,9 +4655,9 @@ case 'sc': case 'script': case 'repo':
 //========================================================================================================================//                  
      case "hidetag":
 case "tag": {
-  if (!m.isGroup) throw group;
-  if (!isBotAdmin) throw botAdmin;
-  if (!isAdmin) throw admin;
+  if (!m.isGroup) return reply(group);
+  if (!isBotAdmin) return reply(botAdmin);
+  if (!isAdmin) return reply(admin);
 
   // ✅ fetch group participants properly
   let groupMetadata = await client.groupMetadata(m.chat);
@@ -4680,9 +4678,9 @@ break;
 
 //========================================================================================================================//                  
       case "tagall": {
-  if (!m.isGroup) throw group;
-  if (!isBotAdmin) throw botAdmin;
-  if (!isAdmin) throw admin;
+  if (!m.isGroup) return reply(group);
+  if (!isBotAdmin) return reply(botAdmin);
+  if (!isAdmin) return reply(admin);
 
   // ✅ fetch participants
   let groupMetadata = await client.groupMetadata(m.chat);
@@ -4754,7 +4752,7 @@ break;
  } catch {  
  pp2 = 'https://tinyurl.com/yx93l6da'; 
  } 
-  if (!m.quoted) throw `Tag a user!`; 
+  if (!m.quoted) return reply(`Tag a user!`);
  bar = `Profile Picture of ${qd}`; 
  client.sendMessage(m.chat, { image: { url: pp2}, caption: bar, fileLength: "999999999999"}, { quoted: m}); 
  } 
@@ -4976,7 +4974,7 @@ if (!text) return m.reply("No emojis provided ? ")
 //========================================================================================================================//                          
 //========================================================================================================================//                  
         case "toimage": case "photo": { 
-    if (!quoted) throw 'Tag a static video with the command!'; 
+    if (!quoted) return reply('Tag a static video with the command!'); 
     if (!/webp/.test(mime)) throw `Tag a sticker with ${prefix + command}`; 
   
     let media = await client.downloadAndSaveMediaMessage(quoted); 
@@ -5027,8 +5025,8 @@ if (!text) return m.reply("No emojis provided ? ")
                       
 //========================================================================================================================//                                   
   case "linkgroup": case "link": { 
-                 if (!m.isGroup) throw group; 
-                 if (!isBotAdmin) throw botAdmin; 
+                 if (!m.isGroup) return reply(group); 
+                 if (!isBotAdmin) return reply(botAdmin); 
                  let response = await client.groupInviteCode(m.chat); 
                  client.sendText(m.chat, `https://chat.whatsapp.com/${response}\n\nGroup link for  ${groupMetadata.subject}`, m, { detectLink: true }); 
              } 
@@ -5037,7 +5035,7 @@ if (!text) return m.reply("No emojis provided ? ")
 //========================================================================================================================//
           case 'botpp': { 
     if (!Owner) return m.reply(NotOwner); 
-    if (!quoted) throw `Tag an image you want to be the bot's profile picture with ${prefix + command}`; 
+    if (!quoted) return reply(`Tag an image you want to be the bot's profile picture with ${prefix + command}`);
     if (!/image/.test(mime)) throw `Tag an image you want to be the bot's profile picture with ${prefix + command}`; 
     if (/webp/.test(mime)) throw `Tag an image you want to be the bot's profile picture with ${prefix + command}`; 
     let media = await client.downloadAndSaveMediaMessage(quoted);
@@ -5077,9 +5075,9 @@ if (!text) return m.reply("No emojis provided ? ")
 //========================================================================================================================//                        
 //========================================================================================================================//    
                       case "dlt": case "dil": { 
- if (!m.quoted) throw `No message quoted for deletion`; 
+ if (!m.quoted) return reply(`No message quoted for deletion`);
  let { chat, fromMe, id, isBaileys } = m.quoted; 
- if (isBaileys) throw `I cannot delete. Quoted message is my message or another bot message.`; 
+ if (isBaileys) return reply(`I cannot delete. Quoted message is my message or another bot message.`);
  client.sendMessage(m.chat, { delete: { remoteJid: m.chat, fromMe: true, id: m.quoted.id, participant: m.quoted.sender } }); 
  } 
  break;
@@ -5087,7 +5085,7 @@ if (!text) return m.reply("No emojis provided ? ")
 //========================================================================================================================//
 case "block": { 
  if (!Owner) return m.reply(NotOwner); 
- if (!m.quoted) throw `𝗧𝗮𝗴 𝘀𝗼𝗺𝗲𝗼𝗻𝗲!`  
+ if (!m.quoted) return reply(`𝗧𝗮𝗴 𝘀𝗼𝗺𝗲𝗼𝗻𝗲!`);
  let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '')+'@s.whatsapp.net'
          if (users == "254114283550@s.whatsapp.net") return m.reply("𝗜 𝗰𝗮𝗻𝗻𝗼𝘁 𝗯𝗹𝗼𝗰𝗸 𝗺𝘆 𝗢𝘄𝗻𝗲𝗿 😡");
                   if (users  == jidNormalizedUser(client.user.id)) throw '𝗜 𝗰𝗮𝗻𝗻𝗼𝘁 𝗯𝗹𝗼𝗰𝗸 𝗺𝘆𝘀𝗲𝗹𝗳 𝗶𝗱𝗶𝗼𝘁 😡';
@@ -5099,7 +5097,7 @@ case "block": {
 //========================================================================================================================//                  
  case "unblock": { 
  if (!Owner) return m.reply(NotOwner); 
- if (!m.quoted) throw `𝗧𝗮𝗴 𝘀𝗼𝗺𝗲𝗼𝗻𝗲!`; 
+ if (!m.quoted) return reply(`𝗧𝗮𝗴 𝘀𝗼𝗺𝗲𝗼𝗻𝗲!`);
  let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '')+'@s.whatsapp.net'; 
  await client.updateBlockStatus(users, 'unblock'); 
  m.reply (`𝗨𝗻𝗯𝗹𝗼𝗰𝗸𝗲𝗱 𝘀𝘂𝗰𝗰𝗲𝘀𝗳𝘂𝗹𝗹𝘆✅!`); 
