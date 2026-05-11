@@ -69,20 +69,54 @@ module.exports = raven = async (client, m, chatUpdate, store) => {
         try {
             jid = typeof jid === 'string' ? jid : 
                 (jid.decodeJid ? jid.decodeJid() : String(jid));
-            jid = jid.split(':')[0].split('/')[0];
-            if (!jid.includes('@')) {
-                jid += '@s.whatsapp.net';
-            } else if (jid.endsWith('@lid')) {
-                return jid.toLowerCase();
-            }
-            return jid.toLowerCase();
+            // Preserve group JIDs
+            if (jid.includes('@g.us')) return jid.toLowerCase();
+            // Normalize ALL personal JIDs (both @s.whatsapp.net and @lid)
+            // Check for @lid BEFORE splitting by ':' — "number:0@lid" loses @lid after split
+            const numPart = jid.split(':')[0].split('/')[0].replace(/@.*$/, '');
+            if (!numPart) return '';
+            return (numPart + '@s.whatsapp.net').toLowerCase();
         } catch (e) {
             console.log("JID standardization error:", e);
             return '';
         }
           }
             
-          
+
+  //========================================================================================================================//
+  async function resolveLid(jid, client, store) {
+      if (!jid) return jid;
+      const isLid = jid.includes('@lid') || /^\d{10,}\.0$/.test(jid);
+      if (!isLid) return jid;
+      const lidKey = jid.includes('@lid') ? jid : jid + '@lid';
+      // 1. Try store contacts lookup
+      if (store && store.contacts) {
+          const contact = store.contacts[lidKey];
+          if (contact && contact.id && !contact.id.includes('@lid')) {
+              return jidNormalizedUser(contact.id);
+          }
+          for (const [id, c] of Object.entries(store.contacts)) {
+              if (c.lid === lidKey || c.lid === jid) {
+                  return jidNormalizedUser(id);
+              }
+          }
+      }
+      // 2. Try onWhatsApp network lookup
+      try {
+          const numericPart = jid.split(':')[0].split('@')[0].replace('.0', '');
+          const results = await client.onWhatsApp(numericPart);
+          if (results && results[0] && results[0].exists && results[0].jid) {
+              return jidNormalizedUser(results[0].jid);
+          }
+      } catch (e) {}
+      // 3. Last resort: extract numeric part
+      const numericPart = jid.split(':')[0].split('@')[0].replace('.0', '');
+      return numericPart + '@s.whatsapp.net';
+  }
+	  
+//========================================================================================================================//
+//========================================================================================================================// 
+	  
 const mek = chatUpdate.messages[0];
           
           const sendr = mek.key.fromMe 
@@ -95,6 +129,35 @@ const mek = chatUpdate.messages[0];
         }
         return mek.key.participant || mek.key.remoteJid;
     })();
+
+
+//========================================================================================================================//
+//========================================================================================================================//	  
+function getBotLid(client) {
+    if (!client?.user) return null;
+
+    if (client.user.lid) {
+        const lid = String(client.user.lid);
+        if (lid.includes('@lid')) return lid.toLowerCase();
+        return lid.split(':')[0] + '@lid';
+    }
+
+    if (client.user.id && client.user.id.includes('@lid')) {
+        return client.user.id.split(':')[0] + '@lid';
+    }
+
+    if (client.user.id) {
+        const raw = String(client.user.id);
+        const numPart = raw.split(':')[0].split('@')[0];
+        if (numPart.length > 12) {
+            return numPart + '@lid';
+        }
+    }
+
+    return null;
+}
+//========================================================================================================================//
+//========================================================================================================================//	  
 //========================================================================================================================//      
     const Heroku = require("heroku-client");  
     const command = body.replace(prefix, "").trim().split(/ +/).shift().toLowerCase();
@@ -109,13 +172,11 @@ const mek = chatUpdate.messages[0];
     const reply = m.reply;
     const sender = sendr;
 //========================================================================================================================//
-          const ownerJid = dev && typeof dev === 'string' 
-        ? standardizeJid(dev.replace(/\D/g, ''))
-        : standardizeJid('254780147229');
-          
     // Create superUser array safely
+	  const botLid = getBotLid(client);
+	  
     const superUser = [
-    ownerJid,
+	botLid,
     standardizeJid(botNumber),
     ...owner.map(num => `${num}@s.whatsapp.net`)
 ].map(jid => standardizeJid(jid)).filter(Boolean);
@@ -123,13 +184,8 @@ const mek = chatUpdate.messages[0];
     const superUserSet = new Set(superUser);
     const finalSuperUsers = Array.from(superUserSet);
           
-let senderForOwner = sender;
-if (sender && sender.endsWith('@lid')) {
-    const contact = store?.contacts?.[sender];
-    if (contact?.id && !contact.id.endsWith('@lid')) {
-        senderForOwner = standardizeJid(contact.id);
-    }
-}
+let senderForOwner = await resolveLid(sender, client, store);
+senderForOwner = standardizeJid(senderForOwner);
 const Owner = finalSuperUsers.includes(standardizeJid(senderForOwner));
     
 
@@ -178,13 +234,7 @@ const Owner = finalSuperUsers.includes(standardizeJid(senderForOwner));
      const date = new Date()  
      const timestamp = speed(); 
      const Rspeed = speed() - timestamp 
-//========================================================================================================================//
-//========================================================================================================================//
 
-
-
-
-        
 //========================================================================================================================//
 //========================================================================================================================//      
     // Push Message To Console
@@ -242,7 +292,6 @@ let { key } = await client.sendMessage(m.chat, {audio: fs.readFileSync('./Media/
 }
 //========================================================================================================================// 
     
-
 //========================================================================================================================//
 if (antitag === 'on' && !Owner && isBotAdmin && !isAdmin && m.mentionedJid && m.mentionedJid.length > 10) {
         if (itsMe) return;
