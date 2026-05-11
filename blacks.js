@@ -69,13 +69,13 @@ module.exports = raven = async (client, m, chatUpdate, store) => {
         try {
             jid = typeof jid === 'string' ? jid : 
                 (jid.decodeJid ? jid.decodeJid() : String(jid));
-            jid = jid.split(':')[0].split('/')[0];
-            if (!jid.includes('@')) {
-                jid += '@s.whatsapp.net';
-            } else if (jid.endsWith('@lid')) {
-                return jid.toLowerCase();
-            }
-            return jid.toLowerCase();
+            // Preserve group JIDs
+            if (jid.includes('@g.us')) return jid.toLowerCase();
+            // Normalize ALL personal JIDs (both @s.whatsapp.net and @lid)
+            // Check for @lid BEFORE splitting by ':' — "number:0@lid" loses @lid after split
+            const numPart = jid.split(':')[0].split('/')[0].replace(/@.*$/, '');
+            if (!numPart) return '';
+            return (numPart + '@s.whatsapp.net').toLowerCase();
         } catch (e) {
             console.log("JID standardization error:", e);
             return '';
@@ -110,7 +110,7 @@ const mek = chatUpdate.messages[0];
     const sender = sendr;
 //========================================================================================================================//
           const ownerJid = dev && typeof dev === 'string' 
-        ? standardizeJid(dev.replace(/\D/g, ''))
+        ? standardizeJid(dev.split(',')[0].trim().replace(/\D/g, ''))
         : standardizeJid('254780147229');
           
     // Create superUser array safely
@@ -162,7 +162,7 @@ const Owner = finalSuperUsers.includes(standardizeJid(senderForOwner));
       .filter(p => p.admin && p.pn)
       .map(p => p.pn)
   : [];
-    const isBotAdmin = m.isGroup ? groupAdmin.includes(botNumber) : false; 
+    const isBotAdmin = m.isGroup ? groupAdmin.includes(botNumber.split('@')[0]) : false; 
         const groupSender = m.isGroup && groupMetadata
   ? (() => {
       const found = groupMetadata.participants.find(p => 
