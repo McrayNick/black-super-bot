@@ -1,14 +1,12 @@
 
 
-const { BufferJSON, WA_DEFAULT_EPHEMERAL, generateWAMessageFromContent, proto, generateWAMessageContent, generateWAMessage, prepareWAMessageMedia, areJidsSameUser, getContentType } = require("@whiskeysockets/baileys");
+const { proto, getContentType } = require("@whiskeysockets/baileys");
 const fs = require("fs");
 const path = require('path');
 const util = require("util");
-const mumaker = require("mumaker");
 global.axios = require('axios').default
 const chalk = require("chalk");
 const fetch = require('node-fetch');
-const uploadToCatbox = require('./lib/catbox.js');
 const uploadToUguu = require('./lib/uugu');
 const speed = require("performance-now");
 const Genius = require("genius-lyrics");
@@ -24,8 +22,7 @@ const {c, cpp, node, python, java} = require('compile-run');
 const acrcloud = require("acrcloud"); 
 const ytdl = require("ytdl-core");
 const Client = new Genius.Client("TUoAEhL79JJyU-MpOsBDkFhJFWFH28nv6dgVgPA-9R1YRwLNP_zicdX2omG2qKE8gYLJat5F5VSBNLfdnlpfJg"); // Scrapes if no key is provided
-const { TelegraPh, UploadFileUgu, webp2mp4File, floNime } = require('./lib/ravenupload');
-const { Configuration, OpenAI } = require("openai");
+const { webp2mp4File } = require('./lib/ravenupload');
 const { getSettings, updateSetting } = require('./database/config');
 const fetchSettings = require('./database/fetchSettings');
 const { appname, herokuapi, botname, author, packname, mycode, admin, botAdmin, dev, group, bad, owner, NotOwner, } = require("./set.js");
