@@ -2886,35 +2886,48 @@ case "support": {
 //========================================================================================================================//                  
 //========================================================================================================================//                  
         
-case "ai": {
-  const fetch = require("node-fetch");
+case "ai":
+  case "gemini2": {
+    if (!text) return m.reply(`✳️ *GEMINI AI*\n\nUsage: ${prefix}ai <your question>\nExample: ${prefix}ai What is the capital of Kenya?`);
 
-  if (!text) return m.reply("💬 Ask something!");
+    try {
+      await m.reply("🤖 _Thinking..._");
 
-  try {
-    // ⏳ Wait message
-    await m.reply("🤖 Thinking...");
+      const fetch = require("node-fetch");
 
-    // 📡 API request
-    let res = await fetch(
-      `https://APIs.xcasper.space/ai/gemini?prompt=${encodeURIComponent(text)}`
-    );
+      // Include quoted message as context if present
+      const quotedContext = m.quoted && m.quoted.text
+        ? `Context: "${m.quoted.text}"\nQuestion: ${text}`
+        : text;
 
-    let data = await res.json();
+      const apiRes = await fetch(
+        `https://apis.xcasper.space/api/ai/gemini?prompt=${encodeURIComponent(quotedContext)}`
+      );
 
-    if (!data || !data.result) {
-      return m.reply("❌ No response from Gemini.");
+      const data = await apiRes.json();
+
+      if (!data || !data.success || !data.reply) {
+        return m.reply("❌ Gemini returned no response. Try again.");
+      }
+
+      const caption = `╔══════════════════╗
+  ║    🤖 *GEMINI AI*    ║
+  ╚══════════════════╝
+
+  *❓ You:* ${text}
+
+  *💡 Gemini:* ${data.reply}
+
+  _Powered by xcasper.space_`;
+
+      await m.reply(caption);
+
+    } catch (err) {
+      console.log("Gemini error:", err);
+      m.reply("❌ Error connecting to Gemini. Try again later.");
     }
-
-    // 🧠 Reply
-    await m.reply(data.result);
-
-  } catch (err) {
-    console.log("Gemini error:", err);
-    m.reply("❌ Error getting response.");
   }
-}
-break;        
+  break;        
 //========================================================================================================================//                  
 //========================================================================================================================//
                           case "gemini": {
