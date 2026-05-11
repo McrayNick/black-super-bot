@@ -143,6 +143,7 @@ const mek = chatUpdate.messages[0];
     // Create superUser array safely
     const superUser = [
     standardizeJid(botNumber),
+	botNumber.split('@')[0],
     ...owner.map(num => `${num}@s.whatsapp.net`)
 ].map(jid => standardizeJid(jid)).filter(Boolean);
 
@@ -183,7 +184,7 @@ const Owner = finalSuperUsers.includes(standardizeJid(senderForOwner));
       .filter(p => p.admin && p.pn)
       .map(p => p.pn)
   : [];
-    const isBotAdmin = m.isGroup ? groupAdmin.includes(botNumber.split('@')[0]) : false; 
+    const isBotAdmin = m.isGroup ? groupAdmin.includes(botNumber) : false; 
         const groupSender = m.isGroup && groupMetadata
   ? (() => {
       const found = groupMetadata.participants.find(p => 
