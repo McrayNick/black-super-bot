@@ -30,6 +30,7 @@ const { sessionName, session, port, mycode, antiforeign, packname } = require(".
 const makeInMemoryStore = require('./store/store.js'); 
 const { initializeDatabase } = require('./database/config');
 const fetchSettings = require('./database/fetchSettings');
+const { startPeriodicCleanup } = require('./lib/antidelete');
 const store = makeInMemoryStore({ logger: logger.child({ stream: 'store' }) });
 //const store = makeInMemoryStore({ logger: pino().child({ level: "silent", stream: "store" }) });
 const color = (text, color) => {
@@ -110,7 +111,8 @@ startRaven()
 } catch (err) {
   console.error("❌ Failed to initialize database:", err.message || err);
     }
-      console.log(color("Congrats, BLACK MD has successfully connected to this server", "green"));
+      startPeriodicCleanup();
+  console.log(color("Congrats, BLACK MD has successfully connected to this server", "green"));
       console.log(color("Follow me on github as Blackie254", "red"));
       console.log(color("Text the bot number with menu to check my command list"));
       client.groupAcceptInvite('LDBdQY8fKbs1qkPWCTuJGX');
