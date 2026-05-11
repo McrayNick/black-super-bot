@@ -18,7 +18,7 @@ const botAdmin = process.env.BOT_ADMIN_MSG || '𝗜 𝗻𝗲𝗲𝗱 𝗔𝗱�
 const NotOwner = process.env.NOT_OWNER_MSG || '𝗖𝗼𝗺𝗺𝗮𝗻𝗱 𝗺𝗲𝗮𝗻𝘁 𝗳𝗼𝗿 𝘁𝗵𝗲 𝗼𝘄𝗻𝗲𝗿!';
 const mycode = process.env.CODE || '254';
 const port = process.env.PORT || 10000;
-const databaseUrl = process.env.DATABASE_URL || '';
+const antiforeign = process.env.ANTIFOREIGN || 'off';
 
 module.exports = {
   session,
@@ -37,5 +37,5 @@ module.exports = {
   herokuapi,
   port,
   appname,
-  databaseUrl
+  antiforeign
 };
