@@ -5,7 +5,6 @@ const {
   DisconnectReason,
   fetchLatestBaileysVersion,
   downloadContentFromMessage,
-  jidDecode,
   proto,
   jidNormalizedUser,
   getContentType,
