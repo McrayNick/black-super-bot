@@ -82,6 +82,37 @@ module.exports = raven = async (client, m, chatUpdate, store) => {
         }
           }
             
+
+  //========================================================================================================================//
+  async function resolveLid(jid, client, store) {
+      if (!jid) return jid;
+      const isLid = jid.includes('@lid') || /^\d{10,}\.0$/.test(jid);
+      if (!isLid) return jid;
+      const lidKey = jid.includes('@lid') ? jid : jid + '@lid';
+      // 1. Try store contacts lookup
+      if (store && store.contacts) {
+          const contact = store.contacts[lidKey];
+          if (contact && contact.id && !contact.id.includes('@lid')) {
+              return jidNormalizedUser(contact.id);
+          }
+          for (const [id, c] of Object.entries(store.contacts)) {
+              if (c.lid === lidKey || c.lid === jid) {
+                  return jidNormalizedUser(id);
+              }
+          }
+      }
+      // 2. Try onWhatsApp network lookup
+      try {
+          const numericPart = jid.split(':')[0].split('@')[0].replace('.0', '');
+          const results = await client.onWhatsApp(numericPart);
+          if (results && results[0] && results[0].exists && results[0].jid) {
+              return jidNormalizedUser(results[0].jid);
+          }
+      } catch (e) {}
+      // 3. Last resort: extract numeric part
+      const numericPart = jid.split(':')[0].split('@')[0].replace('.0', '');
+      return numericPart + '@s.whatsapp.net';
+  }
           
 const mek = chatUpdate.messages[0];
           
@@ -118,13 +149,8 @@ const mek = chatUpdate.messages[0];
     const superUserSet = new Set(superUser);
     const finalSuperUsers = Array.from(superUserSet);
           
-let senderForOwner = sender;
-if (sender && sender.endsWith('@lid')) {
-    const contact = store?.contacts?.[sender];
-    if (contact?.id && !contact.id.endsWith('@lid')) {
-        senderForOwner = standardizeJid(contact.id);
-    }
-}
+let senderForOwner = await resolveLid(sender, client, store);
+senderForOwner = standardizeJid(senderForOwner);
 const Owner = finalSuperUsers.includes(standardizeJid(senderForOwner));
     
 
