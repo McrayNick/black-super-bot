@@ -109,13 +109,8 @@ const mek = chatUpdate.messages[0];
     const reply = m.reply;
     const sender = sendr;
 //========================================================================================================================//
-          const ownerJid = dev && typeof dev === 'string' 
-        ? standardizeJid(dev.split(',')[0].trim().replace(/\D/g, ''))
-        : standardizeJid('254780147229');
-          
     // Create superUser array safely
     const superUser = [
-    ownerJid,
     standardizeJid(botNumber),
     ...owner.map(num => `${num}@s.whatsapp.net`)
 ].map(jid => standardizeJid(jid)).filter(Boolean);
