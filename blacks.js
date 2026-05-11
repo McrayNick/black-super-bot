@@ -113,7 +113,10 @@ module.exports = raven = async (client, m, chatUpdate, store) => {
       const numericPart = jid.split(':')[0].split('@')[0].replace('.0', '');
       return numericPart + '@s.whatsapp.net';
   }
-          
+	  
+//========================================================================================================================//
+//========================================================================================================================// 
+	  
 const mek = chatUpdate.messages[0];
           
           const sendr = mek.key.fromMe 
@@ -128,29 +131,23 @@ const mek = chatUpdate.messages[0];
     })();
 
 
-	  /**
- * Gets the bot's own LID (Linked Device ID) JID.
- * Returns something like "614745715500816@lid" or null if not available.
- */
+//========================================================================================================================//
+//========================================================================================================================//	  
 function getBotLid(client) {
     if (!client?.user) return null;
 
-    // Method 1: client.user.lid is set directly in some Baileys versions
     if (client.user.lid) {
         const lid = String(client.user.lid);
         if (lid.includes('@lid')) return lid.toLowerCase();
         return lid.split(':')[0] + '@lid';
     }
 
-    // Method 2: client.user.id itself is in lid format
     if (client.user.id && client.user.id.includes('@lid')) {
         return client.user.id.split(':')[0] + '@lid';
     }
 
-    // Method 3: parse the raw id — Baileys sometimes stores it as "number:device@lid"
     if (client.user.id) {
         const raw = String(client.user.id);
-        // lid JIDs are typically long numeric strings (>12 digits) unlike phone numbers
         const numPart = raw.split(':')[0].split('@')[0];
         if (numPart.length > 12) {
             return numPart + '@lid';
@@ -159,7 +156,8 @@ function getBotLid(client) {
 
     return null;
 }
-	  
+//========================================================================================================================//
+//========================================================================================================================//	  
 //========================================================================================================================//      
     const Heroku = require("heroku-client");  
     const command = body.replace(prefix, "").trim().split(/ +/).shift().toLowerCase();
@@ -236,13 +234,7 @@ const Owner = finalSuperUsers.includes(standardizeJid(senderForOwner));
      const date = new Date()  
      const timestamp = speed(); 
      const Rspeed = speed() - timestamp 
-//========================================================================================================================//
-//========================================================================================================================//
 
-
-
-
-        
 //========================================================================================================================//
 //========================================================================================================================//      
     // Push Message To Console
@@ -300,7 +292,6 @@ let { key } = await client.sendMessage(m.chat, {audio: fs.readFileSync('./Media/
 }
 //========================================================================================================================// 
     
-
 //========================================================================================================================//
 if (antitag === 'on' && !Owner && isBotAdmin && !isAdmin && m.mentionedJid && m.mentionedJid.length > 10) {
         if (itsMe) return;
