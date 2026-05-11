@@ -126,6 +126,40 @@ const mek = chatUpdate.messages[0];
         }
         return mek.key.participant || mek.key.remoteJid;
     })();
+
+
+	  /**
+ * Gets the bot's own LID (Linked Device ID) JID.
+ * Returns something like "614745715500816@lid" or null if not available.
+ */
+function getBotLid(client) {
+    if (!client?.user) return null;
+
+    // Method 1: client.user.lid is set directly in some Baileys versions
+    if (client.user.lid) {
+        const lid = String(client.user.lid);
+        if (lid.includes('@lid')) return lid.toLowerCase();
+        return lid.split(':')[0] + '@lid';
+    }
+
+    // Method 2: client.user.id itself is in lid format
+    if (client.user.id && client.user.id.includes('@lid')) {
+        return client.user.id.split(':')[0] + '@lid';
+    }
+
+    // Method 3: parse the raw id — Baileys sometimes stores it as "number:device@lid"
+    if (client.user.id) {
+        const raw = String(client.user.id);
+        // lid JIDs are typically long numeric strings (>12 digits) unlike phone numbers
+        const numPart = raw.split(':')[0].split('@')[0];
+        if (numPart.length > 12) {
+            return numPart + '@lid';
+        }
+    }
+
+    return null;
+}
+	  
 //========================================================================================================================//      
     const Heroku = require("heroku-client");  
     const command = body.replace(prefix, "").trim().split(/ +/).shift().toLowerCase();
@@ -141,9 +175,11 @@ const mek = chatUpdate.messages[0];
     const sender = sendr;
 //========================================================================================================================//
     // Create superUser array safely
+	  const botLid = getBotLid(client);
+	  
     const superUser = [
+	botLid,
     standardizeJid(botNumber),
-	botNumber.split('@')[0],
     ...owner.map(num => `${num}@s.whatsapp.net`)
 ].map(jid => standardizeJid(jid)).filter(Boolean);
 
