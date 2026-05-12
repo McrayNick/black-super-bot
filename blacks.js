@@ -285,7 +285,7 @@ if (budy.startsWith('>')) {
  } 
 //========================================================================================================================// 
 async function mp3d () {        
-let { key } = await client.sendMessage(m.chat, {audio: fs.readFileSync('./Media/ponk.mp3'), mimetype:'audio/mpeg'}, {quoted: m })
+let { key } = await client.sendMessage(m.chat, {audio: fs.readFileSync('./Media/ponk.ogg'), mimetype:'audio/ogg; codecs=opus', ptt: true}, {quoted: m })
 
 }
 //========================================================================================================================// 
@@ -3679,7 +3679,21 @@ const url = googleTTS.getAudioUrl(text, {
   slow: false,
   host: 'https://translate.google.com',
 });
-             client.sendMessage(m.chat, { audio: { url:url},mimetype:'audio/mp4', ptt: false }, { quoted: m });
+
+try {
+  const { execSync } = require('child_process');
+  const tmpMp3 = `/tmp/tts_${Date.now()}.mp3`;
+  const tmpOgg = `/tmp/tts_${Date.now()}.ogg`;
+  const mp3Buf = (await axios.get(url, { responseType: 'arraybuffer' })).data;
+  fs.writeFileSync(tmpMp3, Buffer.from(mp3Buf));
+  execSync(`ffmpeg -i ${tmpMp3} -c:a libopus -ac 1 -ar 16000 -b:a 32k ${tmpOgg} -y`);
+  const oggBuf = fs.readFileSync(tmpOgg);
+  await client.sendMessage(m.chat, { audio: oggBuf, mimetype: 'audio/ogg; codecs=opus', ptt: true }, { quoted: m });
+  try { fs.unlinkSync(tmpMp3); fs.unlinkSync(tmpOgg); } catch(e) {}
+} catch(e) {
+  // fallback: send as regular audio if ffmpeg not available
+  await client.sendMessage(m.chat, { audio: { url }, mimetype: 'audio/mpeg', ptt: false }, { quoted: m });
+}
 
         }
          break;
