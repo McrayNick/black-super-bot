@@ -2785,41 +2785,82 @@ case "support": {
 //========================================================================================================================//                  
 //========================================================================================================================//
 //========================================================================================================================//                  
-              case "img": case "ai-img": case "image": case "images":{
-                      var gis = require('g-i-s');
-                      if (!text) return m.reply("Provide a text");
+              case "img":
+  case "ai-img":
+  case "image":
+  case "images":
+  case "imgsearch":
+  case "pics": {
+    if (!text) return m.reply(`🔍 *IMAGE SEARCH*
+
+  Usage: ${prefix}image <search term>
+  Example: ${prefix}image nairobi skyline
+  Example: ${prefix}image cute cats
+
+  Tip: Add a number (1-5) at the end to get more images.
+  Example: ${prefix}image sunset 3`);
 
     try {
-        // Use the 'text' as the search term for images
-        gis(text, async (error, results) => {
-            if (error) {
-                return m.reply("An error occurred while searching for images.\n" + error);
-            }
+      await m.reply("🔍 _Searching images..._");
 
-            // Check if results are found
-            if (results.length === 0) {
-                return m.reply("No images found.");
-            }
+      const fetch = require("node-fetch");
 
-            // Limit the number of images to send (e.g., 5)
-            const numberOfImages = Math.min(results.length, 5);
-            const imageUrls = results.slice(0, numberOfImages).map(result => result.url);
+      // Parse optional count from end of query e.g. "cats 3"
+      const countMatch = text.match(/\s+(\d)$/);
+      let query = text;
+      let count = 1;
+      if (countMatch) {
+        count = Math.min(Math.max(parseInt(countMatch[1]), 1), 5);
+        query = text.slice(0, text.lastIndexOf(countMatch[0])).trim();
+      }
 
-            // Send the images
-            const messages = imageUrls.map(url => ({
-                image: { url },
-                caption: `Downloaded by ${botname}`
-            }));
+      const FLICKR_KEY = "3e7cc266ae2b0e0d78e279ce8e361736";
+      const apiUrl = `https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=${FLICKR_KEY}&text=${encodeURIComponent(query)}&format=json&nojsoncallback=1&per_page=${count + 5}&sort=relevance&content_type=1&extras=url_m,url_l&safe_search=1`;
 
-            for (const message of messages) {
-                await client.sendMessage(m.chat, message, { quoted: m });
-            }
-        });
-    } catch (e) {
-        m.reply("An error occurred.\n" + e);
+      const apiRes = await fetch(apiUrl, { timeout: 15000 });
+      const data = await apiRes.json();
+
+      if (data.stat !== "ok" || !data.photos?.photo?.length) {
+        return m.reply(`❌ No images found for *${query}*. Try a different search term.`);
+      }
+
+      const photos = data.photos.photo.slice(0, count);
+      let sent = 0;
+
+      for (const photo of photos) {
+        const imageUrl = photo.url_m ||
+          `https://farm${photo.farm}.staticflickr.com/${photo.server}/${photo.id}_${photo.secret}_m.jpg`;
+
+        try {
+          const imgRes = await fetch(imageUrl, { timeout: 15000 });
+          if (!imgRes.ok) continue;
+          const imageBuffer = await imgRes.buffer();
+
+          const caption = sent === 0
+            ? `🔍 *"${query}"* — ${data.photos.total.toLocaleString()} results found
+${count > 1 ? `Image ${sent + 1} of ${photos.length}` : ''}`
+            : `Image ${sent + 1} of ${photos.length}`;
+
+          await client.sendMessage(m.chat, { image: imageBuffer, caption: caption.trim() }, { quoted: m });
+          sent++;
+
+          // Small delay between multiple images
+          if (photos.length > 1 && sent < photos.length) await new Promise(r => setTimeout(r, 800));
+        } catch (imgErr) {
+          console.log("Image fetch error:", imgErr.message);
+        }
+      }
+
+      if (sent === 0) {
+        m.reply("❌ Found results but couldn't load the images. Try again.");
+      }
+
+    } catch (err) {
+      console.log("Image search error:", err);
+      m.reply("❌ Image search failed. Please try again.");
     }
-}
-        break;
+  }
+  break;
 
 //========================================================================================================================//                  
 //========================================================================================================================//
