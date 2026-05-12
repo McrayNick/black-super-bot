@@ -5240,26 +5240,52 @@ if (!text) return m.reply("No emojis provided ? ")
  break;
  
 //========================================================================================================================//
-case "block": { 
- if (!Owner) return m.reply(NotOwner); 
- if (!m.quoted) return reply(`𝗧𝗮𝗴 𝘀𝗼𝗺𝗲𝗼𝗻𝗲!`);
- let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '')+'@s.whatsapp.net'
-         if (users == "254114283550@s.whatsapp.net") return m.reply("𝗜 𝗰𝗮𝗻𝗻𝗼𝘁 𝗯𝗹𝗼𝗰𝗸 𝗺𝘆 𝗢𝘄𝗻𝗲𝗿 😡");
-                  if (users  == jidNormalizedUser(client.user.id)) return reply('𝗜 𝗰𝗮𝗻𝗻𝗼𝘁 𝗯𝗹𝗼𝗰𝗸 𝗺𝘆𝘀𝗲𝗹𝗳 𝗶𝗱𝗶𝗼𝘁 😡');
- await client.updateBlockStatus(users, 'block'); 
- m.reply (`𝗕𝗹𝗼𝗰𝗸𝗲𝗱 𝘀𝘂𝗰𝗰𝗲𝘀𝗳𝘂𝗹𝗹𝘆!`); 
- } 
- break; 
+case "block": {
+    if (!Owner) return m.reply(NotOwner);
+    if (!m.quoted && !m.mentionedJid[0] && !text) return reply(`𝗧𝗮𝗴 𝘀𝗼𝗺𝗲𝗼𝗻𝗲 𝗼𝗿 𝗿𝗲𝗽𝗹𝘆 𝘁𝗼 𝗮 𝗺𝗲𝘀𝘀𝗮𝗴𝗲!`);
+
+    // Raw JID — may be @lid in newer WhatsApp
+    let rawJid = m.mentionedJid[0]
+      ? m.mentionedJid[0]
+      : m.quoted
+        ? m.quoted.sender
+        : text.replace(/[^0-9]/g, '') + '@s.whatsapp.net';
+
+    // Resolve @lid → @s.whatsapp.net (required for updateBlockStatus)
+    let users = await resolveLid(rawJid, client, store);
+    users = standardizeJid(users) || rawJid;
+
+    // Safety checks using standardized JIDs
+    const ownerJid = standardizeJid('254114283550@s.whatsapp.net');
+    const botJid   = standardizeJid(jidNormalizedUser(client.user.id));
+    if (standardizeJid(users) === ownerJid) return m.reply('𝗜 𝗰𝗮𝗻𝗻𝗼𝘁 𝗯𝗹𝗼𝗰𝗸 𝗺𝘆 𝗢𝘄𝗻𝗲𝗿 😡');
+    if (standardizeJid(users) === botJid)   return reply('𝗜 𝗰𝗮𝗻𝗻𝗼𝘁 𝗯𝗹𝗼𝗰𝗸 𝗺𝘆𝘀𝗲𝗹𝗳 𝗶𝗱𝗶𝗼𝘁 😡');
+
+    await client.updateBlockStatus(users, 'block');
+    m.reply(`𝗕𝗹𝗼𝗰𝗸𝗲𝗱 𝘀𝘂𝗰𝗰𝗲𝘀𝗳𝘂𝗹𝗹𝘆!`);
+  }
+  break; 
 
 //========================================================================================================================//                  
- case "unblock": { 
- if (!Owner) return m.reply(NotOwner); 
- if (!m.quoted) return reply(`𝗧𝗮𝗴 𝘀𝗼𝗺𝗲𝗼𝗻𝗲!`);
- let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '')+'@s.whatsapp.net'; 
- await client.updateBlockStatus(users, 'unblock'); 
- m.reply (`𝗨𝗻𝗯𝗹𝗼𝗰𝗸𝗲𝗱 𝘀𝘂𝗰𝗰𝗲𝘀𝗳𝘂𝗹𝗹𝘆✅!`); 
- } 
- break;
+ case "unblock": {
+    if (!Owner) return m.reply(NotOwner);
+    if (!m.quoted && !m.mentionedJid[0] && !text) return reply(`𝗧𝗮𝗴 𝘀𝗼𝗺𝗲𝗼𝗻𝗲 𝗼𝗿 𝗿𝗲𝗽𝗹𝘆 𝘁𝗼 𝗮 𝗺𝗲𝘀𝘀𝗮𝗴𝗲!`);
+
+    // Raw JID — may be @lid in newer WhatsApp
+    let rawJid = m.mentionedJid[0]
+      ? m.mentionedJid[0]
+      : m.quoted
+        ? m.quoted.sender
+        : text.replace(/[^0-9]/g, '') + '@s.whatsapp.net';
+
+    // Resolve @lid → @s.whatsapp.net (required for updateBlockStatus)
+    let users = await resolveLid(rawJid, client, store);
+    users = standardizeJid(users) || rawJid;
+
+    await client.updateBlockStatus(users, 'unblock');
+    m.reply(`𝗨𝗻𝗯𝗹𝗼𝗰𝗸𝗲𝗱 𝘀𝘂𝗰𝗰𝗲𝘀𝗳𝘂𝗹𝗹𝘆✅!`);
+  }
+  break;
 
 //========================================================================================================================//                  
           case 'join': { 
