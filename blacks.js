@@ -3933,6 +3933,45 @@ if (!text) return reply('Provide a valid Bot Baileys Function to evaluate');try 
             if (!rawNum) return reply('❌ Invalid number. Use digits only, e.g. .add 254114283550');
             const targetJid = rawNum + '@s.whatsapp.net';
 
+            // Helper: fetch invite code and DM it directly to the target number
+            const sendInviteDM = async (reason) => {
+              try {
+                const code = await client.groupInviteCode(m.chat);
+                const link = `https://chat.whatsapp.com/${code}`;
+                const groupName = (await client.groupMetadata(m.chat)).subject;
+
+                // DM straight to the person being added
+                await client.sendMessage(targetJid, {
+                  text: `👋 Hi! You've been invited to join *${groupName}* on WhatsApp.\n\n` +
+                        `📩 *Tap the link below to join:*\n${link}\n\n` +
+                        `_Sent by the group admin via Black-MD Bot_`
+                });
+
+                // Tell the group the invite was sent
+                await client.sendMessage(m.chat, {
+                  text: `⚠️ Couldn't add @${rawNum} directly` +
+                        (reason ? ` (${reason})` : '') +
+                        `.\n\n📩 Invite link sent directly to their DM.`,
+                  mentions: [targetJid]
+                }, { quoted: m });
+
+              } catch (inviteErr) {
+                // If DM also fails (e.g. number not on WA), fall back to posting link in group
+                try {
+                  const code = await client.groupInviteCode(m.chat);
+                  const link = `https://chat.whatsapp.com/${code}`;
+                  await client.sendMessage(m.chat, {
+                    text: `⚠️ Couldn't add @${rawNum}` +
+                          (reason ? ` (${reason})` : '') +
+                          ` and DM delivery failed.\n\n📩 *Group invite link:*\n${link}\n\n_Share this with them manually._`,
+                    mentions: [targetJid]
+                  }, { quoted: m });
+                } catch {
+                  reply(`❌ Failed to add @${rawNum} and couldn't generate an invite link.`);
+                }
+              }
+            };
+
             try {
               const result = await client.groupParticipantsUpdate(m.chat, [targetJid], 'add');
               const status = String(result?.[0]?.status || '');
@@ -3944,17 +3983,7 @@ if (!text) return reply('Provide a valid Bot Baileys Function to evaluate');try 
                 }, { quoted: m });
 
               } else if (status === '403') {
-                // Privacy settings — fall back to sending invite link
-                try {
-                  const code = await client.groupInviteCode(m.chat);
-                  const link = `https://chat.whatsapp.com/${code}`;
-                  await client.sendMessage(m.chat, {
-                    text: `⚠️ Couldn't add @${rawNum} directly.\nTheir privacy settings block being added to groups.\n\n📩 *Group invite link:*\n${link}\n\n_Share this link with them to join._`,
-                    mentions: [targetJid]
-                  }, { quoted: m });
-                } catch {
-                  reply(`⚠️ Couldn't add @${rawNum} — privacy settings block it. Also failed to generate an invite link.`);
-                }
+                await sendInviteDM('their privacy settings block being added');
 
               } else if (status === '408') {
                 await client.sendMessage(m.chat, {
@@ -3969,37 +3998,14 @@ if (!text) return reply('Provide a valid Bot Baileys Function to evaluate');try 
                 }, { quoted: m });
 
               } else if (status === '401') {
-                await client.sendMessage(m.chat, {
-                  text: `❌ @${rawNum} has blocked being added to groups.`,
-                  mentions: [targetJid]
-                }, { quoted: m });
+                await sendInviteDM('they have blocked being added to groups');
 
               } else {
-                // Unknown status — still try to send invite as fallback
-                try {
-                  const code = await client.groupInviteCode(m.chat);
-                  const link = `https://chat.whatsapp.com/${code}`;
-                  await client.sendMessage(m.chat, {
-                    text: `⚠️ Couldn't add @${rawNum} (status: ${status || 'unknown'}).\n\n📩 *Group invite link:*\n${link}`,
-                    mentions: [targetJid]
-                  }, { quoted: m });
-                } catch {
-                  reply(`❌ Failed to add @${rawNum}. Status: ${status || 'unknown'}.`);
-                }
+                await sendInviteDM(`status ${status || 'unknown'}`);
               }
 
             } catch (err) {
-              // Network / unexpected crash — still try invite fallback
-              try {
-                const code = await client.groupInviteCode(m.chat);
-                const link = `https://chat.whatsapp.com/${code}`;
-                await client.sendMessage(m.chat, {
-                  text: `⚠️ Something went wrong while adding @${rawNum}.\n\n📩 *Group invite link instead:*\n${link}`,
-                  mentions: [targetJid]
-                }, { quoted: m });
-              } catch {
-                reply(`❌ Failed to add @${rawNum}. Error: ${err.message}`);
-              }
+              await sendInviteDM(`error: ${err.message}`);
             }
           }
           break;
