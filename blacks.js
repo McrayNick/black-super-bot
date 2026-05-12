@@ -4185,7 +4185,7 @@ case "remove": case "kick": {
     if (!m.quoted && (!m.mentionedJid || m.mentionedJid.length === 0)) {
             return m.reply("Who should i remove !?");
         }
-        let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.participantPn : null;
+        let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : null;
         const parts = users.split('@')[0];
 
 if (users == "254114283550@s.whatsapp.net") return m.reply("It's an Owner Number! 😡");
