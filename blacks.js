@@ -3228,32 +3228,46 @@ break;
 //========================================================================================================================//
 //========================================================================================================================//
               case 'picha': {
-                if (!text) return reply(`🖼️ Provide a search term!\nExample: *${prefix}picha cats*`);
+                if (!text) return reply(`🖼️ Toa neno la kutafuta!\nMfano: *${prefix}picha mbwa*`);
                 try {
-                  const Gis = require('g-i-s');
-                  await reply(`🔍 Searching images for: *${text}*...`);
+                  await reply(`🔍 Inatafuta picha za: *${text}*...`);
 
-                  const results = await new Promise((resolve, reject) => {
-                    Gis(text, (err, res) => {
-                      if (err) reject(err);
-                      else resolve(res);
-                    });
+                  // Scrape Yandex Images
+                  const searchUrl = `https://yandex.com/images/search?text=${encodeURIComponent(text)}&itype=jpg`;
+                  const res = await axios.get(searchUrl, {
+                    headers: {
+                      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                      'Accept-Language': 'en-US,en;q=0.9',
+                      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+                    },
+                    timeout: 15000
                   });
 
-                  const valid = (results || []).filter(r => r.url && r.url.startsWith('http'));
-                  if (!valid.length) return reply('❌ No images found for that search term. Try something else.');
+                  // Extract img_href URLs (HTML-entity encoded in the page)
+                  const matches = res.data.match(/&quot;img_href&quot;:&quot;(https?://[^&]+)&quot;/g) || [];
+                  const urls = matches
+                    .map(m => m.replace(/&quot;img_href&quot;:&quot;/, '').replace(/&quot;$/, ''))
+                    .filter(u => /.(jpg|jpeg|png|webp)/i.test(u));
 
-                  // Pick randomly from first 10 results
-                  const pick = valid[Math.floor(Math.random() * Math.min(valid.length, 10))];
+                  if (!urls.length) return reply('❌ Hakuna picha zilizopatikana. Jaribu neno lingine.');
 
-                  const buffer = await getBuffer(pick.url);
+                  // Pick a random image from results
+                  const pick = urls[Math.floor(Math.random() * Math.min(urls.length, urls.length))];
+
+                  const imgRes = await axios.get(pick, {
+                    responseType: 'arraybuffer',
+                    headers: { 'User-Agent': 'Mozilla/5.0' },
+                    timeout: 15000
+                  });
+
+                  const buffer = Buffer.from(imgRes.data);
                   await client.sendMessage(m.chat, {
                     image: buffer,
-                    caption: `🖼️ *${text}*\n\n🤖 𝗕𝗟𝗔𝗖𝗞-𝗠𝗗 𝗕𝗼𝘁`
+                    caption: `🖼️ *${text}*\n\n🔎 Yandex Images | 🤖 𝗕𝗟𝗔𝗖𝗞-𝗠𝗗`
                   }, { quoted: m });
 
                 } catch (err) {
-                  reply('❌ Failed to fetch image. Try a different search term.');
+                  reply('❌ Imeshindwa kupata picha. Jaribu neno lingine au tena baadaye.');
                 }
               }
               break;
