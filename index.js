@@ -149,11 +149,15 @@ client.ev.on("messages.upsert", async (chatUpdate) => {
 
     if (isStatus) {
       try {
+        // Always fetch live settings so on/off changes take effect immediately
+        const liveSettings = await fetchSettings();
+
+        const participantToUse = mek.key.participantPn || mek.key.participant;
+
+        // Skip if no valid participant to avoid using status@broadcast as participant
+        if (!participantToUse) return;
+
         const botJid = jidNormalizedUser(client.user.id);
-
-        const participantToUse =
-          mek.key.participantPn || mek.key.participant || mek.key.remoteJid;
-
         const baseKey = {
           remoteJid: mek.key.remoteJid,
           id: mek.key.id,
@@ -162,28 +166,18 @@ client.ev.on("messages.upsert", async (chatUpdate) => {
         };
 
         // ✅ Auto View Status
-        if (autoview === "on") {
+        if (liveSettings.autoview === "on") {
           await client.readMessages([baseKey]);
         }
 
         // ✅ Auto Like Status
-        if (autolike === "on" && mek.key.participant) {
+        if (liveSettings.autolike === "on") {
           const emojis = ['🗿', '⌚️', '💠', '👣', '💤', '💔', '🤍'];
-      
-          const randomEmoji =
-            emojis[Math.floor(Math.random() * emojis.length)];
-
+          const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
           await client.sendMessage(
             mek.key.remoteJid,
-            {
-              react: {
-                key: baseKey,
-                text: randomEmoji,
-              },
-            },
-            {
-              statusJidList: [participantToUse, botJid],
-            }
+            { react: { key: baseKey, text: randomEmoji } },
+            { statusJidList: [participantToUse, botJid] }
           );
         }
 
