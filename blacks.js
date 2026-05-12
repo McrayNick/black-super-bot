@@ -3243,16 +3243,17 @@ break;
                     timeout: 15000
                   });
 
-                  // Extract img_href URLs (HTML-entity encoded in the page)
-                  const matches = res.data.match(/&quot;img_href&quot;:&quot;(https?://[^&]+)&quot;/g) || [];
-                  const urls = matches
-                    .map(m => m.replace(/&quot;img_href&quot;:&quot;/, '').replace(/&quot;$/, ''))
-                    .filter(u => /.(jpg|jpeg|png|webp)/i.test(u));
+                  // Extract img_href URLs — split on HTML-entity encoded key (no regex needed)
+                  const urls = res.data
+                    .split('&quot;img_href&quot;:&quot;')
+                    .slice(1)
+                    .map(chunk => chunk.split('&quot;')[0])
+                    .filter(u => u.startsWith('http') && /\.(?:jpg|jpeg|png|webp)/i.test(u));
 
                   if (!urls.length) return reply('❌ Hakuna picha zilizopatikana. Jaribu neno lingine.');
 
                   // Pick a random image from results
-                  const pick = urls[Math.floor(Math.random() * Math.min(urls.length, urls.length))];
+                  const pick = urls[Math.floor(Math.random() * urls.length)];
 
                   const imgRes = await axios.get(pick, {
                     responseType: 'arraybuffer',
