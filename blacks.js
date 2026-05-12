@@ -3845,21 +3845,50 @@ let fta2 = await client.downloadAndSaveMediaMessage(q)
 
 //========================================================================================================================//                  
     case 'smeme': {
-                let responnd = `Quote an image or sticker with the 2 texts separated with |`
+                let responnd = `Quote an image with the 2 texts separated with |\nExample: ${prefix}smeme top text|bottom text`
                 if (!/image/.test(mime)) return reply(responnd)
                 if (!text) return reply(responnd)
-           
-                atas = text.split('|')[0] ? text.split('|')[0] : '-'
-                bawah = text.split('|')[1] ? text.split('|')[1] : '-'
-                let dwnld = await client.downloadAndSaveMediaMessage(qmsg)
-                let fatGans = await uploadtoimgur(dwnld)
-                let smeme = `https://api.memegen.link/images/custom/${encodeURIComponent(bawah)}/${encodeURIComponent(atas)}.png?background=${fatGans}`
-                let pop = await client.sendImageAsSticker(m.chat, smeme, m, {
-                    packname: packname,
 
-                })
-                fs.unlinkSync(pop)
-            }  
+                atas = text.split('|')[0] ? text.split('|')[0].trim() : ''
+                bawah = text.split('|')[1] ? text.split('|')[1].trim() : ''
+
+                let dwnld = await client.downloadAndSaveMediaMessage(qmsg)
+
+                const Jimp = require('jimp')
+                const image = await Jimp.read(dwnld)
+                const imgW = image.bitmap.width
+                const imgH = image.bitmap.height
+
+                const fontWhite = await Jimp.loadFont(Jimp.FONT_SANS_64_WHITE)
+                const fontBlack = await Jimp.loadFont(Jimp.FONT_SANS_64_BLACK)
+
+                const pad = 12
+                const textW = imgW - pad * 2
+                const outlineOffsets = [[-2,-2],[-2,2],[2,-2],[2,2],[-2,0],[2,0],[0,-2],[0,2]]
+
+                if (atas) {
+                    for (const [ox, oy] of outlineOffsets) {
+                        image.print(fontBlack, pad + ox, pad + oy, { text: atas, alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER }, textW)
+                    }
+                    image.print(fontWhite, pad, pad, { text: atas, alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER }, textW)
+                }
+
+                if (bawah) {
+                    const bottomY = imgH - 80
+                    for (const [ox, oy] of outlineOffsets) {
+                        image.print(fontBlack, pad + ox, bottomY + oy, { text: bawah, alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER }, textW)
+                    }
+                    image.print(fontWhite, pad, bottomY, { text: bawah, alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER }, textW)
+                }
+
+                const outPath = dwnld + '_meme.jpg'
+                await image.writeAsync(outPath)
+
+                await client.sendImageAsSticker(m.chat, outPath, m, { packname: packname })
+
+                try { fs.unlinkSync(dwnld) } catch(e) {}
+                try { fs.unlinkSync(outPath) } catch(e) {}
+            }
              break;
 
 //========================================================================================================================//                  
