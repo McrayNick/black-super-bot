@@ -3223,6 +3223,41 @@ break;
 
 //========================================================================================================================//    
 
+
+//========================================================================================================================//
+//========================================================================================================================//
+//========================================================================================================================//
+              case 'picha': {
+                if (!text) return reply(`🖼️ Provide a search term!\nExample: *${prefix}picha cats*`);
+                try {
+                  const Gis = require('g-i-s');
+                  await reply(`🔍 Searching images for: *${text}*...`);
+
+                  const results = await new Promise((resolve, reject) => {
+                    Gis(text, (err, res) => {
+                      if (err) reject(err);
+                      else resolve(res);
+                    });
+                  });
+
+                  const valid = (results || []).filter(r => r.url && r.url.startsWith('http'));
+                  if (!valid.length) return reply('❌ No images found for that search term. Try something else.');
+
+                  // Pick randomly from first 10 results
+                  const pick = valid[Math.floor(Math.random() * Math.min(valid.length, 10))];
+
+                  const buffer = await getBuffer(pick.url);
+                  await client.sendMessage(m.chat, {
+                    image: buffer,
+                    caption: `🖼️ *${text}*\n\n🤖 𝗕𝗟𝗔𝗖𝗞-𝗠𝗗 𝗕𝗼𝘁`
+                  }, { quoted: m });
+
+                } catch (err) {
+                  reply('❌ Failed to fetch image. Try a different search term.');
+                }
+              }
+              break;
+
 //========================================================================================================================//                  
 //========================================================================================================================//                  
 //========================================================================================================================//                  
