@@ -5333,17 +5333,38 @@ await client.sendMessage(m.chat, { image: { url: pp },
          break;
 
 //========================================================================================================================//                  
-   case 'tovideo': case 'mp4': case 'tovid': {
-                        
-                if (!quoted) return reply('Reply to Sticker')
-                if (!/webp/.test(mime)) return reply(`reply sticker with caption *${prefix + command}*`)
-                
-                let media = await client.downloadAndSaveMediaMessage(quoted)
-                let webpToMp4 = await webp2mp4File(media)
-                await client.sendMessage(m.chat, { video: { url: webpToMp4.result, caption: 'Convert Webp To Video' } }, { quoted: m })
-                await fs.unlinkSync(media)
-            }
-            break;
+   case 'tovideo':
+  case 'mp4':
+  case 'tovid': {
+    if (!quoted) return reply(`📎 Reply to an *animated sticker* with *${prefix + command}* to convert it to a video`);
+    if (!/webp/.test(mime)) return reply(`⚠️ That's not a sticker. Reply to an animated sticker with *${prefix + command}*`);
+
+    let media;
+    let outputPath;
+
+    try {
+      await m.reply('🎬 _Converting sticker to video..._');
+
+      media = await client.downloadAndSaveMediaMessage(quoted);
+      const converted = await webp2mp4File(media);
+      outputPath = converted.result;
+
+      const videoBuffer = fs.readFileSync(outputPath);
+
+      await client.sendMessage(m.chat, {
+        video: videoBuffer,
+        caption: '🎬 *Sticker → Video*\n_Converted with ffmpeg_'
+      }, { quoted: m });
+
+    } catch (err) {
+      console.log('tovideo error:', err);
+      m.reply('❌ Conversion failed. Make sure it is an *animated* sticker (not a static one).');
+    } finally {
+      try { if (media) fs.unlinkSync(media); } catch {}
+      try { if (outputPath) fs.unlinkSync(outputPath); } catch {}
+    }
+  }
+  break;
 //========================================================================================================================//
 //========================================================================================================================//        
         default: {
