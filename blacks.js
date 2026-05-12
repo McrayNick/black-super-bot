@@ -273,16 +273,7 @@ if (antidelete === "on") {
 
 //========================================================================================================================//
 //========================================================================================================================//      
-if (budy.startsWith('>')) { 
-   if (!Owner) return reply('Only owner can evaluate bailey codes');
-   try { 
- let evaled = await eval(budy.slice(2)); 
- if (typeof evaled !== 'string') evaled = require('util').inspect(evaled); 
- await reply(evaled); 
-   } catch (err) { 
- await reply(String(err)); 
-   } 
- } 
+
 //========================================================================================================================// 
 async function mp3d () {        
 let { key } = await client.sendMessage(m.chat, {audio: fs.readFileSync('./Media/ponk.ogg'), mimetype:'audio/ogg; codecs=opus', ptt: true}, {quoted: m })
@@ -3958,12 +3949,12 @@ reply(resultt4.stderr)
      break;
 
 //========================================================================================================================//                  
-case "eval":{
+case "eval": {
    if (!Owner) return m.reply(NotOwner); 
 if (!text) return reply('Provide a valid Bot Baileys Function to evaluate');
 	
 try { 
-   let evaled = await eval(text.slice(2)); 
+   let evaled = await eval(text); 
  if (typeof evaled !== 'string') evaled = require('util').inspect(evaled); 
  await reply(evaled); 
    } catch (err) { 
