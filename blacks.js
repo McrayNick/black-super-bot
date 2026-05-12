@@ -4185,29 +4185,62 @@ case 'restart':
   break;
 
 //========================================================================================================================//                  
-case "remove": case "kick": { 
+case "remove": case "kick": {
+            if (!m.isGroup) return reply(group);
+            if (!isBotAdmin) return reply(botAdmin);
+            if (!isAdmin) return reply(admin);
 
-       if (!m.isGroup) return reply(group); 
-       if (!isBotAdmin) return reply(botAdmin); 
-      if (!isAdmin) return reply(admin);
-  
-    if (!m.quoted && (!m.mentionedJid || m.mentionedJid.length === 0)) {
-            return m.reply("Who should i remove !?");
-        }
-        let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : null;
-        const parts = users.split('@')[0];
+            // Resolve target — mention takes priority, then quoted sender
+            let rawTarget = (m.mentionedJid && m.mentionedJid[0])
+              ? m.mentionedJid[0]
+              : m.quoted
+                ? m.quoted.sender
+                : null;
 
-if (users == "254114283550@s.whatsapp.net") return m.reply("It's an Owner Number! 😡");
+            if (!rawTarget) return m.reply('❓ Tag someone or reply to their message to remove them.');
 
-          if (users  == jidNormalizedUser(client.user.id)) return reply('I cannot remove Myself 😡');
+            // Resolve LID JIDs (new WhatsApp format) to standard s.whatsapp.net JID
+            const targetJid = await resolveLid(rawTarget, client, store);
+            const targetNum = targetJid.split('@')[0];
 
-                      m.reply(`@${parts} Goodbye🤧`);
+            // Guard: can't remove owner or self
+            if (targetJid === '254114283550@s.whatsapp.net') return m.reply("😡 That's the owner's number!");
+            if (targetJid === jidNormalizedUser(client.user.id)) return m.reply('😡 I cannot remove myself!');
 
-                 await client.groupParticipantsUpdate(m.chat, [users], 'remove'); 
- 
+            try {
+              const result = await client.groupParticipantsUpdate(m.chat, [targetJid], 'remove');
+              const status = String(result?.[0]?.status || '');
 
-}
-  break;
+              if (status === '200') {
+                await client.sendMessage(m.chat, {
+                  text: `👋 @${targetNum} has been removed from the group.`,
+                  mentions: [targetJid]
+                }, { quoted: m });
+
+              } else if (status === '403') {
+                await client.sendMessage(m.chat, {
+                  text: `❌ Couldn't remove @${targetNum} — they may be an admin or removal is restricted.`,
+                  mentions: [targetJid]
+                }, { quoted: m });
+
+              } else if (status === '404') {
+                await client.sendMessage(m.chat, {
+                  text: `❌ @${targetNum} is not in this group.`,
+                  mentions: [targetJid]
+                }, { quoted: m });
+
+              } else {
+                await client.sendMessage(m.chat, {
+                  text: `❌ Failed to remove @${targetNum}. Status: ${status || 'unknown'}`,
+                  mentions: [targetJid]
+                }, { quoted: m });
+              }
+
+            } catch (err) {
+              await m.reply(`❌ Error removing member: ${err.message}`);
+            }
+          }
+          break;
 //========================================================================================================================//
 //========================================================================================================================//                  
     case "instagram": case "igdl": case "ig": {
