@@ -152,14 +152,14 @@ client.ev.on("messages.upsert", async (chatUpdate) => {
         // Always fetch live settings so on/off changes take effect immediately
         const liveSettings = await fetchSettings();
 
-        const participantToUse = mek.key.participantPn || mek.key.participant;
+        const participantToUse = mek.key.senderPn || mek.key.remoteJidAlt;
 
         // Skip if no valid participant to avoid using status@broadcast as participant
         if (!participantToUse) return;
 
         const botJid = jidNormalizedUser(client.user.id);
         const baseKey = {
-          remoteJid: mek.key.remoteJid,
+          remoteJid: mek.key.remoteJidAlt,
           id: mek.key.id,
           fromMe: mek.key.fromMe,
           participant: participantToUse,
