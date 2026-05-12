@@ -3855,6 +3855,7 @@ let fta2 = await client.downloadAndSaveMediaMessage(q)
                 let dwnld = await client.downloadAndSaveMediaMessage(qmsg)
 
                 const Jimp = require('jimp')
+                const { Sticker, StickerTypes } = require('wa-sticker-formatter')
                 const image = await Jimp.read(dwnld)
                 const imgW = image.bitmap.width
                 const imgH = image.bitmap.height
@@ -3881,13 +3882,18 @@ let fta2 = await client.downloadAndSaveMediaMessage(q)
                     image.print(fontWhite, pad, bottomY, { text: bawah, alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER }, textW)
                 }
 
-                const outPath = dwnld + '_meme.jpg'
-                await image.writeAsync(outPath)
+                const memeBuffer = await image.getBufferAsync(Jimp.MIME_JPEG)
 
-                await client.sendImageAsSticker(m.chat, outPath, m, { packname: packname })
+                const stickerMeme = new Sticker(memeBuffer, {
+                    pack: packname,
+                    type: StickerTypes.FULL,
+                    quality: 70,
+                    background: 'transparent'
+                })
+                const stickerBuffer = await stickerMeme.toBuffer()
+                await client.sendMessage(m.chat, { sticker: stickerBuffer }, { quoted: m })
 
                 try { fs.unlinkSync(dwnld) } catch(e) {}
-                try { fs.unlinkSync(outPath) } catch(e) {}
             }
              break;
 
