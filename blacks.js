@@ -3645,24 +3645,8 @@ m.reply("An error occured.")
 
 //========================================================================================================================//                  
               case "alive": case "test": {
-                const ff = require('fluent-ffmpeg')
-                const { path: ffmpegPath } = require('ffmpeg-static')
-                ff.setFfmpegPath(ffmpegPath)
-
-                const tmpOgg = `/tmp/alive_${Date.now()}.ogg`
-                await new Promise((resolve, reject) => {
-                    ff('./Media/kv.mp3')
-                        .on('error', reject)
-                        .on('end', resolve)
-                        .audioCodec('libopus')
-                        .audioChannels(1)
-                        .audioFrequency(16000)
-                        .toFormat('ogg')
-                        .save(tmpOgg)
-                })
-
                 const dooc = {
-                    audio: fs.readFileSync(tmpOgg),
+                    audio: fs.readFileSync('./Media/kv.ogg'),
                     mimetype: 'audio/ogg; codecs=opus',
                     ptt: true,
                     waveform: [100, 0, 100, 0, 100, 0, 100],
@@ -3679,7 +3663,6 @@ m.reply("An error occured.")
                     }
                 };
                 await client.sendMessage(m.chat, dooc, { quoted: m });
-                try { fs.unlinkSync(tmpOgg) } catch(e) {}
               }
                  break;
                       
