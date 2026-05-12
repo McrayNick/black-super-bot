@@ -903,6 +903,19 @@ case "welcomegoodbye": {
 break;   
 //========================================================================================================================//
 //========================================================================================================================//
+			  case "getcase": {
+if (!Owner) return reply(NotOwner)
+if (!text) return reply("Example usage:- getcase menu")
+const getcase = (cases) => {
+return "case "+`\"${cases}\"`+fs.readFileSync('./blacks.js').toString().split('case \"'+cases+'\"')[1].split("break")[0]+"break"
+}
+try {
+reply(`${getcase(q)}`)
+} catch (e) {
+return reply(`Case *${text}* Not found`)
+}
+}
+        break;
 //========================================================================================================================//
 //========================================================================================================================//
 case "advice":
@@ -3947,8 +3960,10 @@ reply(resultt4.stderr)
 //========================================================================================================================//                  
 case "eval":{
    if (!Owner) return m.reply(NotOwner); 
-if (!text) return reply('Provide a valid Bot Baileys Function to evaluate');try { 
- let evaled = await eval(budy.slice(2)); 
+if (!text) return reply('Provide a valid Bot Baileys Function to evaluate');
+	
+try { 
+   let evaled = await eval(text.slice(2)); 
  if (typeof evaled !== 'string') evaled = require('util').inspect(evaled); 
  await reply(evaled); 
    } catch (err) { 
