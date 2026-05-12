@@ -3645,28 +3645,41 @@ m.reply("An error occured.")
 
 //========================================================================================================================//                  
               case "alive": case "test": {
-                      const audiovn = "./Media/kv.mp3";
-    const dooc = {
-        audio: {
-          url: audiovn
-        },
-        mimetype: 'audio/mp4',
-        ptt: false,
-        waveform:  [100, 0, 100, 0, 100, 0, 100],
-        fileName: "𝐁𝐋𝐀𝐂𝐊-𝐌𝐃",
+                const ff = require('fluent-ffmpeg')
+                const { path: ffmpegPath } = require('ffmpeg-static')
+                ff.setFfmpegPath(ffmpegPath)
 
-        contextInfo: {
-          mentionedJid: [m.sender],
-          externalAdReply: {
-          title: "𝗛𝗶 𝗛𝘂𝗺𝗮𝗻👋, 𝗜 𝗮𝗺 𝗔𝗹𝗶𝘃𝗲 𝗻𝗼𝘄",
-          body: "𝐁𝐋𝐀𝐂𝐊-𝐌𝐃",
-          thumbnailUrl: "https://files.catbox.moe/rql1hh.jpeg",
-          sourceUrl: '',
-          mediaType: 1,
-          renderLargerThumbnail: true
-          }}
-      };
-        await client.sendMessage(m.chat, dooc, {quoted: m });
+                const tmpOgg = `/tmp/alive_${Date.now()}.ogg`
+                await new Promise((resolve, reject) => {
+                    ff('./Media/kv.mp3')
+                        .on('error', reject)
+                        .on('end', resolve)
+                        .audioCodec('libopus')
+                        .audioChannels(1)
+                        .audioFrequency(16000)
+                        .toFormat('ogg')
+                        .save(tmpOgg)
+                })
+
+                const dooc = {
+                    audio: fs.readFileSync(tmpOgg),
+                    mimetype: 'audio/ogg; codecs=opus',
+                    ptt: true,
+                    waveform: [100, 0, 100, 0, 100, 0, 100],
+                    contextInfo: {
+                        mentionedJid: [m.sender],
+                        externalAdReply: {
+                            title: "𝗛𝗶 𝗛𝘂𝗺𝗮𝗻👋, 𝗜 𝗮𝗺 𝗔𝗹𝗶𝘃𝗲 𝗻𝗼𝘄",
+                            body: "𝐁𝐋𝐀𝐂𝐊-𝐌𝐃",
+                            thumbnailUrl: "https://files.catbox.moe/rql1hh.jpeg",
+                            sourceUrl: '',
+                            mediaType: 1,
+                            renderLargerThumbnail: true
+                        }
+                    }
+                };
+                await client.sendMessage(m.chat, dooc, { quoted: m });
+                try { fs.unlinkSync(tmpOgg) } catch(e) {}
               }
                  break;
                       
