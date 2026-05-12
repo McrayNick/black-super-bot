@@ -3922,15 +3922,87 @@ if (!text) return reply('Provide a valid Bot Baileys Function to evaluate');try 
      break;
 
 //========================================================================================================================//                  
-        case 'add':
-                      if (!text) return reply('provide a number to be added in this format. \n\n add 254114283550'); 
-                if (!m.isGroup) return reply(group);
-                if (!isAdmin) return reply(admin);
-                if (!isBotAdmin) return reply(botAdmin);
-                let blockwwww = text;
-                await client.groupParticipantsUpdate(m.chat, [blockwwww], 'add')
-                reply(`succesfully added`)
-                break;
+        case 'add': {
+            if (!text) return reply('Please provide a number to add.\n\nExample: .add 254114283550');
+            if (!m.isGroup) return reply(group);
+            if (!isAdmin) return reply(admin);
+            if (!isBotAdmin) return reply(botAdmin);
+
+            // Strip everything except digits and normalise to JID
+            const rawNum = text.replace(/[^0-9]/g, '').trim();
+            if (!rawNum) return reply('❌ Invalid number. Use digits only, e.g. .add 254114283550');
+            const targetJid = rawNum + '@s.whatsapp.net';
+
+            try {
+              const result = await client.groupParticipantsUpdate(m.chat, [targetJid], 'add');
+              const status = String(result?.[0]?.status || '');
+
+              if (status === '200') {
+                await client.sendMessage(m.chat, {
+                  text: `✅ Successfully added @${rawNum} to the group.`,
+                  mentions: [targetJid]
+                }, { quoted: m });
+
+              } else if (status === '403') {
+                // Privacy settings — fall back to sending invite link
+                try {
+                  const code = await client.groupInviteCode(m.chat);
+                  const link = `https://chat.whatsapp.com/${code}`;
+                  await client.sendMessage(m.chat, {
+                    text: `⚠️ Couldn't add @${rawNum} directly.\nTheir privacy settings block being added to groups.\n\n📩 *Group invite link:*\n${link}\n\n_Share this link with them to join._`,
+                    mentions: [targetJid]
+                  }, { quoted: m });
+                } catch {
+                  reply(`⚠️ Couldn't add @${rawNum} — privacy settings block it. Also failed to generate an invite link.`);
+                }
+
+              } else if (status === '408') {
+                await client.sendMessage(m.chat, {
+                  text: `❌ @${rawNum} is not registered on WhatsApp.`,
+                  mentions: [targetJid]
+                }, { quoted: m });
+
+              } else if (status === '409') {
+                await client.sendMessage(m.chat, {
+                  text: `ℹ️ @${rawNum} is already a member of this group.`,
+                  mentions: [targetJid]
+                }, { quoted: m });
+
+              } else if (status === '401') {
+                await client.sendMessage(m.chat, {
+                  text: `❌ @${rawNum} has blocked being added to groups.`,
+                  mentions: [targetJid]
+                }, { quoted: m });
+
+              } else {
+                // Unknown status — still try to send invite as fallback
+                try {
+                  const code = await client.groupInviteCode(m.chat);
+                  const link = `https://chat.whatsapp.com/${code}`;
+                  await client.sendMessage(m.chat, {
+                    text: `⚠️ Couldn't add @${rawNum} (status: ${status || 'unknown'}).\n\n📩 *Group invite link:*\n${link}`,
+                    mentions: [targetJid]
+                  }, { quoted: m });
+                } catch {
+                  reply(`❌ Failed to add @${rawNum}. Status: ${status || 'unknown'}.`);
+                }
+              }
+
+            } catch (err) {
+              // Network / unexpected crash — still try invite fallback
+              try {
+                const code = await client.groupInviteCode(m.chat);
+                const link = `https://chat.whatsapp.com/${code}`;
+                await client.sendMessage(m.chat, {
+                  text: `⚠️ Something went wrong while adding @${rawNum}.\n\n📩 *Group invite link instead:*\n${link}`,
+                  mentions: [targetJid]
+                }, { quoted: m });
+              } catch {
+                reply(`❌ Failed to add @${rawNum}. Error: ${err.message}`);
+              }
+            }
+          }
+          break;
 
 //========================================================================================================================//                  
 //========================================================================================================================//                  
