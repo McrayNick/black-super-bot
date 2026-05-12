@@ -3252,20 +3252,27 @@ break;
 
                   if (!urls.length) return reply('❌ Hakuna picha zilizopatikana. Jaribu neno lingine.');
 
-                  // Pick a random image from results
-                  const pick = urls[Math.floor(Math.random() * urls.length)];
+                  // Shuffle and pick up to 5 random images
+                  const shuffled = urls.sort(() => Math.random() - 0.5).slice(0, 5);
 
-                  const imgRes = await axios.get(pick, {
-                    responseType: 'arraybuffer',
-                    headers: { 'User-Agent': 'Mozilla/5.0' },
-                    timeout: 15000
-                  });
+                  await reply(`🔍 Imepata picha *${shuffled.length}* za: *${text}*`);
 
-                  const buffer = Buffer.from(imgRes.data);
-                  await client.sendMessage(m.chat, {
-                    image: buffer,
-                    caption: `🖼️ *${text}*\n\n🔎 Yandex Images | 🤖 𝗕𝗟𝗔𝗖𝗞-𝗠𝗗`
-                  }, { quoted: m });
+                  for (let i = 0; i < shuffled.length; i++) {
+                    try {
+                      const imgRes = await axios.get(shuffled[i], {
+                        responseType: 'arraybuffer',
+                        headers: { 'User-Agent': 'Mozilla/5.0' },
+                        timeout: 15000
+                      });
+                      const buffer = Buffer.from(imgRes.data);
+                      await client.sendMessage(m.chat, {
+                        image: buffer,
+                        caption: i === 0 ? `🖼️ *${text}* [${i + 1}/${shuffled.length}]\n\n🔎 Yandex Images | 🤖 𝗕𝗟𝗔𝗖𝗞-𝗠𝗗` : `[${i + 1}/${shuffled.length}]`
+                      }, { quoted: m });
+                    } catch (_) {
+                      // Skip images that fail to download
+                    }
+                  }
 
                 } catch (err) {
                   reply('❌ Imeshindwa kupata picha. Jaribu neno lingine au tena baadaye.');
