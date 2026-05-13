@@ -921,19 +921,27 @@ client.sendContact(from, maindev2, m)
 break;
                       
 //========================================================================================================================//
-                      case "lyrics": 
- try { 
- if (!text) return reply("Provide a song name!"); 
- const searches = await Client.songs.search(text); 
- const firstSong = searches[0]; 
- //await client.sendMessage(from, {text: firstSong}); 
- const lyrics = await firstSong.lyrics(); 
- await client.sendMessage(from, { text: lyrics}, { quoted: m }); 
- } catch (error) { 
-             reply(`I did not find any lyrics for ${text}. Try searching a different song.`); 
-             console.log(error); 
-         }
+                      case "lyrics": {
+        try {
+          if (!text) return reply("Provide a song name!");
+          const suggestRes = await axios.get("https://api.lyrics.ovh/suggest/" + encodeURIComponent(text));
+          const hit = suggestRes.data?.data?.[0];
+          if (!hit) return reply("No results found for: " + text);
+          const artist = hit.artist.name;
+          const title = hit.title;
+          const lyricsRes = await axios.get("https://api.lyrics.ovh/v1/" + encodeURIComponent(artist) + "/" + encodeURIComponent(title));
+          if (!lyricsRes.data?.lyrics) return reply("Lyrics not found for: " + title);
+          const msg = "*" + title + "*
+_" + artist + "_
+
+" + lyricsRes.data.lyrics;
+          await client.sendMessage(from, { text: msg }, { quoted: m });
+        } catch (error) {
+          reply("I did not find any lyrics for " + text + ". Try searching a different song.");
+          console.log(error);
+        }
         break;
+}
                       
 //========================================================================================================================//          
         
