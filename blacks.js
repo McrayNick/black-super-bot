@@ -893,6 +893,47 @@ case "welcomegoodbye": {
 }
 break;   
 //========================================================================================================================//
+case "settings": {
+  if (!Owner) return m.reply(NotOwner);
+  try {
+    const s = await getSettings();
+    const tog = (v) => v === 'on' ? '✅ ON' : '❌ OFF';
+    const msg =
+      `╔══════════════════════╗
+║    ⚙️  BOT SETTINGS    ║
+╚══════════════════════╝
+
+*🔒 Security*
+┣ Anti-Link: ${tog(s.antilink)}
+┣ Anti-Link All: ${tog(s.antilinkall)}
+┣ Anti-Delete: ${tog(s.antidelete)}
+┣ Anti-Call: ${tog(s.anticall)}
+┣ Anti-Bot: ${tog(s.antibot)}
+┣ Anti-Tag: ${tog(s.antitag)}
+┗ Bad Word Filter: ${tog(s.badword)}
+
+*🤖 Automation*
+┣ Auto-Read: ${tog(s.autoread)}
+┣ Auto-Like: ${tog(s.autolike)}
+┣ Auto-View: ${tog(s.autoview)}
+┣ Auto-Bio: ${tog(s.autobio)}
+┗ Welcome/Goodbye: ${tog(s.welcomegoodbye)}
+
+*💬 Bot Behaviour*
+┣ GPT DMs: ${tog(s.gptdm)}
+┣ Mode: 🌐 ${(s.mode || 'public').toUpperCase()}
+┣ Prefix: \`${s.prefix || '.'}\`
+┣ Menu Type: 📋 ${(s.menutype || 'video').toUpperCase()}
+┗ WA Presence: 🟢 ${(s.wapresence || 'recording').toUpperCase()}`;
+
+    await client.sendMessage(m.chat, { text: msg }, { quoted: m });
+  } catch (err) {
+    console.error('settings error:', err.message);
+    reply('❌ Failed to fetch settings. Please try again.');
+  }
+}
+break;
+//========================================================================================================================//
 //========================================================================================================================//
 			  case "getcase": {
 if (!Owner) return reply(NotOwner)
