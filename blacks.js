@@ -4137,14 +4137,35 @@ try {
 
 //========================================================================================================================//                  
                  case "news": {
-                      const response = await fetch('https://fantox001-scrappy-api.vercel.app/technews/random');
-    const data = await response.json();
-
-    const { thumbnail, news } = data;
-
-        await client.sendMessage(m.chat, { image: { url: thumbnail }, caption: news }, { quoted: m });
-
-              }
+  try {
+    const cheerio = require('cheerio');
+    const rssRes = await axios.get('https://feeds.bbci.co.uk/news/technology/rss.xml', {
+      headers: { 'User-Agent': 'Mozilla/5.0' }
+    });
+    const $ = cheerio.load(rssRes.data, { xmlMode: true });
+    const items = [];
+    $('item').each((_, el) => {
+      const title       = $(el).find('title').text();
+      const description = $(el).find('description').text();
+      const link        = $(el).find('link').text();
+      const pubDate     = $(el).find('pubDate').text();
+      const thumbnail   = $(el).find('media\\:thumbnail, thumbnail').attr('url')
+                       || 'https://news.bbcimg.co.uk/nol/shared/img/bbc_news_120x60.gif';
+      if (title) items.push({ title, description, link, pubDate, thumbnail });
+    });
+    if (!items.length) return reply('❌ Could not fetch news right now. Try again later.');
+    const article = items[Math.floor(Math.random() * items.length)];
+    const caption =
+      `📰 *${article.title}*\n\n` +
+      `${article.description}\n\n` +
+      `🗓️ ${article.pubDate}\n` +
+      `🔗 ${article.link}`;
+    await client.sendMessage(m.chat, { image: { url: article.thumbnail }, caption }, { quoted: m });
+  } catch (err) {
+    console.error('news error:', err.message);
+    reply('❌ Failed to fetch news. Please try again.');
+  }
+}
                 break;
 
 //========================================================================================================================//                  
