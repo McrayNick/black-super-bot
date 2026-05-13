@@ -144,30 +144,28 @@ client.ev.on("messages.upsert", async (chatUpdate) => {
         ? mek.message.ephemeralMessage.message
         : mek.message;
 
-    const isStatus = mek.key.remoteJidAlt === "status@broadcast";
+    const isStatus = mek.key.remoteJid === "status@broadcast";
 
     if (isStatus) {
       try {
         // Always fetch live settings so on/off changes take effect immediately
         const liveSettings = await fetchSettings();
 
-        const participantToUse = mek.key.senderPn || mek.key.participantPn;
-          
-          const baseKey = {
-          remoteJid: mek.key.remoteJidAlt,
+        const participantToUse = mek.key.participantPn || mek.key.participant;
+
+        // Skip if no valid participant to avoid using status@broadcast as participant
+        if (!participantToUse) return;
+
+        const botJid = jidNormalizedUser(client.user.id);
+        const baseKey = {
+          remoteJid: mek.key.remoteJid,
           id: mek.key.id,
           fromMe: mek.key.fromMe,
           participant: participantToUse,
         };
 
-        // Skip if no valid participant to avoid using status@broadcast
-        
-        const botJid = jidNormalizedUser(client.user.id);
-        
-
         // ✅ Auto View Status
         if (liveSettings.autoview === "on") {
-          
           await client.readMessages([baseKey]);
         }
 
@@ -176,7 +174,7 @@ client.ev.on("messages.upsert", async (chatUpdate) => {
           const emojis = ['🗿', '⌚️', '💠', '👣', '💤', '💔', '🤍'];
           const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
           await client.sendMessage(
-            mek.key.remoteJidAlt,
+            mek.key.remoteJid,
             { react: { key: baseKey, text: randomEmoji } },
             { statusJidList: [participantToUse, botJid] }
           );
