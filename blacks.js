@@ -931,10 +931,7 @@ break;
           const title = hit.title;
           const lyricsRes = await axios.get("https://api.lyrics.ovh/v1/" + encodeURIComponent(artist) + "/" + encodeURIComponent(title));
           if (!lyricsRes.data?.lyrics) return reply("Lyrics not found for: " + title);
-          const msg = "*" + title + "*
-_" + artist + "_
-
-" + lyricsRes.data.lyrics;
+          const msg = `*${title}*\n_${artist}_\n\n${lyricsRes.data.lyrics}`;
           await client.sendMessage(from, { text: msg }, { quoted: m });
         } catch (error) {
           reply("I did not find any lyrics for " + text + ". Try searching a different song.");
