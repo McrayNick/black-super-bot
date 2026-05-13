@@ -145,7 +145,7 @@ client.ev.on("messages.upsert", async (chatUpdate) => {
         ? mek.message.ephemeralMessage.message
         : mek.message;
 
-    const isStatus = mek.key && mek.key.remoteJid === "status@broadcast";
+    const isStatus = mek.key && mek.key.remoteJidAlt === "status@broadcast";
 
     if (isStatus) {
       try {
@@ -155,14 +155,13 @@ client.ev.on("messages.upsert", async (chatUpdate) => {
         const participantToUse = mek.key.senderPn || mek.key.remoteJidAlt;
 
         // Skip if no valid participant to avoid using status@broadcast as participant
-        if (!participantToUse) return;
 
         const botJid = jidNormalizedUser(client.user.id);
         const baseKey = {
-          remoteJid: mek.key.remoteJidAlt,
+          remoteJidAlt: mek.key.remoteJidAlt,
           id: mek.key.id,
           fromMe: mek.key.fromMe,
-          participant: participantToUse,
+          senderPn: participantToUse,
         };
 
         // ✅ Auto View Status
