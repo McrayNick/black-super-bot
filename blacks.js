@@ -273,19 +273,10 @@ if (antidelete === "on") {
 
 //========================================================================================================================//
 //========================================================================================================================//      
-if (budy.startsWith('>')) { 
-   if (!Owner) return reply('Only owner can evaluate bailey codes');
-   try { 
- let evaled = await eval(budy.slice(2)); 
- if (typeof evaled !== 'string') evaled = require('util').inspect(evaled); 
- await reply(evaled); 
-   } catch (err) { 
- await reply(String(err)); 
-   } 
- } 
+
 //========================================================================================================================// 
 async function mp3d () {        
-let { key } = await client.sendMessage(m.chat, {audio: fs.readFileSync('./Media/ponk.mp3'), mimetype:'audio/mpeg'}, {quoted: m })
+let { key } = await client.sendMessage(m.chat, {audio: fs.readFileSync('./Media/ponk.ogg'), mimetype:'audio/ogg; codecs=opus', ptt: true}, {quoted: m })
 
 }
 //========================================================================================================================// 
@@ -903,6 +894,19 @@ case "welcomegoodbye": {
 break;   
 //========================================================================================================================//
 //========================================================================================================================//
+			  case "getcase": {
+if (!Owner) return reply(NotOwner)
+if (!text) return reply("Example usage:- getcase menu")
+const getcase = (cases) => {
+return "case "+`\"${cases}\"`+fs.readFileSync('./blacks.js').toString().split('case \"'+cases+'\"')[1].split("break")[0]+"break"
+}
+try {
+reply(`${getcase(q)}`)
+} catch (e) {
+return reply(`Case *${text}* Not found`)
+}
+}
+        break;
 //========================================================================================================================//
 //========================================================================================================================//
 case "advice":
@@ -917,19 +921,24 @@ client.sendContact(from, maindev2, m)
 break;
                       
 //========================================================================================================================//
-                      case "lyrics": 
- try { 
- if (!text) return reply("Provide a song name!"); 
- const searches = await Client.songs.search(text); 
- const firstSong = searches[0]; 
- //await client.sendMessage(from, {text: firstSong}); 
- const lyrics = await firstSong.lyrics(); 
- await client.sendMessage(from, { text: lyrics}, { quoted: m }); 
- } catch (error) { 
-             reply(`I did not find any lyrics for ${text}. Try searching a different song.`); 
-             console.log(error); 
-         }
+                      case "lyrics": {
+        try {
+          if (!text) return reply("Provide a song name!");
+          const suggestRes = await axios.get("https://api.lyrics.ovh/suggest/" + encodeURIComponent(text));
+          const hit = suggestRes.data?.data?.[0];
+          if (!hit) return reply("No results found for: " + text);
+          const artist = hit.artist.name;
+          const title = hit.title;
+          const lyricsRes = await axios.get("https://api.lyrics.ovh/v1/" + encodeURIComponent(artist) + "/" + encodeURIComponent(title));
+          if (!lyricsRes.data?.lyrics) return reply("Lyrics not found for: " + title);
+          const msg = `*${title}*\n_${artist}_\n\n${lyricsRes.data.lyrics}`;
+          await client.sendMessage(from, { text: msg }, { quoted: m });
+        } catch (error) {
+          reply("I did not find any lyrics for " + text + ". Try searching a different song.");
+          console.log(error);
+        }
         break;
+}
                       
 //========================================================================================================================//          
         
@@ -3645,28 +3654,24 @@ m.reply("An error occured.")
 
 //========================================================================================================================//                  
               case "alive": case "test": {
-                      const audiovn = "./Media/kv.mp3";
-    const dooc = {
-        audio: {
-          url: audiovn
-        },
-        mimetype: 'audio/mp4',
-        ptt: false,
-        waveform:  [100, 0, 100, 0, 100, 0, 100],
-        fileName: "𝐁𝐋𝐀𝐂𝐊-𝐌𝐃",
-
-        contextInfo: {
-          mentionedJid: [m.sender],
-          externalAdReply: {
-          title: "𝗛𝗶 𝗛𝘂𝗺𝗮𝗻👋, 𝗜 𝗮𝗺 𝗔𝗹𝗶𝘃𝗲 𝗻𝗼𝘄",
-          body: "𝐁𝐋𝐀𝐂𝐊-𝐌𝐃",
-          thumbnailUrl: "https://files.catbox.moe/rql1hh.jpeg",
-          sourceUrl: '',
-          mediaType: 1,
-          renderLargerThumbnail: true
-          }}
-      };
-        await client.sendMessage(m.chat, dooc, {quoted: m });
+                const dooc = {
+                    audio: fs.readFileSync('./Media/kv.ogg'),
+                    mimetype: 'audio/ogg; codecs=opus',
+                    ptt: true,
+                    waveform: [100, 0, 100, 0, 100, 0, 100],
+                    contextInfo: {
+                        mentionedJid: [m.sender],
+                        externalAdReply: {
+                            title: "𝗛𝗶 𝗛𝘂𝗺𝗮𝗻👋, 𝗜 𝗮𝗺 𝗔𝗹𝗶𝘃𝗲 𝗻𝗼𝘄",
+                            body: "𝐁𝐋𝐀𝐂𝐊-𝐌𝐃",
+                            thumbnailUrl: "https://files.catbox.moe/rql1hh.jpeg",
+                            sourceUrl: '',
+                            mediaType: 1,
+                            renderLargerThumbnail: true
+                        }
+                    }
+                };
+                await client.sendMessage(m.chat, dooc, { quoted: m });
               }
                  break;
                       
@@ -3683,7 +3688,21 @@ const url = googleTTS.getAudioUrl(text, {
   slow: false,
   host: 'https://translate.google.com',
 });
-             client.sendMessage(m.chat, { audio: { url:url},mimetype:'audio/mp4', ptt: false }, { quoted: m });
+
+try {
+  const { execSync } = require('child_process');
+  const tmpMp3 = `/tmp/tts_${Date.now()}.mp3`;
+  const tmpOgg = `/tmp/tts_${Date.now()}.ogg`;
+  const mp3Buf = (await axios.get(url, { responseType: 'arraybuffer' })).data;
+  fs.writeFileSync(tmpMp3, Buffer.from(mp3Buf));
+  execSync(`ffmpeg -i ${tmpMp3} -c:a libopus -ac 1 -ar 16000 -b:a 32k ${tmpOgg} -y`);
+  const oggBuf = fs.readFileSync(tmpOgg);
+  await client.sendMessage(m.chat, { audio: oggBuf, mimetype: 'audio/ogg; codecs=opus', ptt: true }, { quoted: m });
+  try { fs.unlinkSync(tmpMp3); fs.unlinkSync(tmpOgg); } catch(e) {}
+} catch(e) {
+  // fallback: send as regular audio if ffmpeg not available
+  await client.sendMessage(m.chat, { audio: { url }, mimetype: 'audio/mpeg', ptt: false }, { quoted: m });
+}
 
         }
          break;
@@ -3845,21 +3864,56 @@ let fta2 = await client.downloadAndSaveMediaMessage(q)
 
 //========================================================================================================================//                  
     case 'smeme': {
-                let responnd = `Quote an image or sticker with the 2 texts separated with |`
+                let responnd = `Quote an image with the 2 texts separated with |\nExample: ${prefix}smeme top text|bottom text`
                 if (!/image/.test(mime)) return reply(responnd)
                 if (!text) return reply(responnd)
-           
-                atas = text.split('|')[0] ? text.split('|')[0] : '-'
-                bawah = text.split('|')[1] ? text.split('|')[1] : '-'
-                let dwnld = await client.downloadAndSaveMediaMessage(qmsg)
-                let fatGans = await uploadtoimgur(dwnld)
-                let smeme = `https://api.memegen.link/images/custom/${encodeURIComponent(bawah)}/${encodeURIComponent(atas)}.png?background=${fatGans}`
-                let pop = await client.sendImageAsSticker(m.chat, smeme, m, {
-                    packname: packname,
 
+                atas = text.split('|')[0] ? text.split('|')[0].trim() : ''
+                bawah = text.split('|')[1] ? text.split('|')[1].trim() : ''
+
+                let dwnld = await client.downloadAndSaveMediaMessage(qmsg)
+
+                const Jimp = require('jimp')
+                const { Sticker, StickerTypes } = require('wa-sticker-formatter')
+                const image = await Jimp.read(dwnld)
+                const imgW = image.bitmap.width
+                const imgH = image.bitmap.height
+
+                const fontWhite = await Jimp.loadFont(Jimp.FONT_SANS_64_WHITE)
+                const fontBlack = await Jimp.loadFont(Jimp.FONT_SANS_64_BLACK)
+
+                const pad = 12
+                const textW = imgW - pad * 2
+                const outlineOffsets = [[-2,-2],[-2,2],[2,-2],[2,2],[-2,0],[2,0],[0,-2],[0,2]]
+
+                if (atas) {
+                    for (const [ox, oy] of outlineOffsets) {
+                        image.print(fontBlack, pad + ox, pad + oy, { text: atas, alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER }, textW)
+                    }
+                    image.print(fontWhite, pad, pad, { text: atas, alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER }, textW)
+                }
+
+                if (bawah) {
+                    const bottomY = imgH - 80
+                    for (const [ox, oy] of outlineOffsets) {
+                        image.print(fontBlack, pad + ox, bottomY + oy, { text: bawah, alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER }, textW)
+                    }
+                    image.print(fontWhite, pad, bottomY, { text: bawah, alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER }, textW)
+                }
+
+                const memeBuffer = await image.getBufferAsync(Jimp.MIME_JPEG)
+
+                const stickerMeme = new Sticker(memeBuffer, {
+                    pack: packname,
+                    type: StickerTypes.FULL,
+                    quality: 70,
+                    background: 'transparent'
                 })
-                fs.unlinkSync(pop)
-            }  
+                const stickerBuffer = await stickerMeme.toBuffer()
+                await client.sendMessage(m.chat, { sticker: stickerBuffer }, { quoted: m })
+
+                try { fs.unlinkSync(dwnld) } catch(e) {}
+            }
              break;
 
 //========================================================================================================================//                  
@@ -3900,10 +3954,12 @@ reply(resultt4.stderr)
      break;
 
 //========================================================================================================================//                  
-case "eval":{
+case "eval": {
    if (!Owner) return m.reply(NotOwner); 
-if (!text) return reply('Provide a valid Bot Baileys Function to evaluate');try { 
- let evaled = await eval(budy.slice(2)); 
+if (!text) return reply('Provide a valid Bot Baileys Function to evaluate');
+	
+try { 
+   let evaled = await eval(text); 
  if (typeof evaled !== 'string') evaled = require('util').inspect(evaled); 
  await reply(evaled); 
    } catch (err) { 

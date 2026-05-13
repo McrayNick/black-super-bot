@@ -123,14 +123,20 @@ startRaven()
   
     client.ev.on("creds.update", saveCreds);
   
-  if (autobio === 'on') {
-    setInterval(() => {
-      const date = new Date();
-      client.updateProfileStatus(
-        `${date.toLocaleString('en-US', { timeZone: 'Africa/Nairobi' })} It's a ${date.toLocaleString('en-US', { weekday: 'long', timeZone: 'Africa/Nairobi'})}.`
-      );
-    }, 10 * 1000);
-  }
+  // Always run interval; check DB live so on/off changes take effect without restart
+  setInterval(async () => {
+    try {
+      const liveSettings = await fetchSettings();
+      if (liveSettings.autobio === 'on') {
+        const date = new Date();
+        client.updateProfileStatus(
+          `${date.toLocaleString('en-US', { timeZone: 'Africa/Nairobi' })} It's a ${date.toLocaleString('en-US', { weekday: 'long', timeZone: 'Africa/Nairobi'})}.>`
+        );
+      }
+    } catch (e) {
+      console.error('autobio interval error:', e.message);
+    }
+  }, 10 * 1000);
 
 client.ev.on("messages.upsert", async (chatUpdate) => {
   try {
@@ -140,20 +146,23 @@ client.ev.on("messages.upsert", async (chatUpdate) => {
     if (!mek.message) return;
 
     // Handle ephemeral messages
-    mek.message =
-      Object.keys(mek.message)[0] === "ephemeralMessage"
+    mek.message = getContentType(mek.message) === "ephemeralMessage"
         ? mek.message.ephemeralMessage.message
         : mek.message;
 
-    const isStatus = mek.key && mek.key.remoteJid === "status@broadcast";
+    const isStatus = mek.key.remoteJid === "status@broadcast";
 
     if (isStatus) {
       try {
+        // Always fetch live settings so on/off changes take effect immediately
+        const liveSettings = await fetchSettings();
+
+        const participantToUse = mek.key.participantPn || mek.key.participant;
+
+        // Skip if no valid participant to avoid using status@broadcast as participant
+        if (!participantToUse) return;
+
         const botJid = jidNormalizedUser(client.user.id);
-
-        const participantToUse =
-          mek.key.participantPn || mek.key.participant || mek.key.remoteJid;
-
         const baseKey = {
           remoteJid: mek.key.remoteJid,
           id: mek.key.id,
@@ -162,28 +171,18 @@ client.ev.on("messages.upsert", async (chatUpdate) => {
         };
 
         // ✅ Auto View Status
-        if (autoview === "on") {
+        if (liveSettings.autoview === "on") {
           await client.readMessages([baseKey]);
         }
 
         // ✅ Auto Like Status
-        if (autolike === "on" && mek.key.participant) {
+        if (liveSettings.autolike === "on") {
           const emojis = ['🗿', '⌚️', '💠', '👣', '💤', '💔', '🤍'];
-      
-          const randomEmoji =
-            emojis[Math.floor(Math.random() * emojis.length)];
-
+          const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
           await client.sendMessage(
             mek.key.remoteJid,
-            {
-              react: {
-                key: baseKey,
-                text: randomEmoji,
-              },
-            },
-            {
-              statusJidList: [participantToUse, botJid],
-            }
+            { react: { key: baseKey, text: randomEmoji } },
+            { statusJidList: [participantToUse, botJid] }
           );
         }
 
@@ -247,20 +246,25 @@ client.ev.on("messages.upsert", async (chatUpdate) => {
     });
 
  client.ev.on('call', async (callData) => {
-    if (anticall === 'on') {
-      const callId = callData[0].id;
-      const callerId = callData[0].from;
+    try {
+      const liveSettings = await fetchSettings();
+      if (liveSettings.anticall === 'on') {
+        const callId = callData[0].id;
+        const callerId = callData[0].from;
 
-      await client.rejectCall(callId, callerId);
-            const currentTime = Date.now();
-      if (currentTime - lastTextTime >= messageDelay) {
-        await client.sendMessage(callerId, {
-          text: "Anticall is active, Only texts are allowed"
-        });
-        lastTextTime = currentTime;
-      } else {
-        console.log('Message skipped to prevent overflow');
+        await client.rejectCall(callId, callerId);
+        const currentTime = Date.now();
+        if (currentTime - lastTextTime >= messageDelay) {
+          await client.sendMessage(callerId, {
+            text: "Anticall is active, Only texts are allowed"
+          });
+          lastTextTime = currentTime;
+        } else {
+          console.log('Message skipped to prevent overflow');
+        }
       }
+    } catch (e) {
+      console.error('anticall handler error:', e.message);
     }
     });
 
