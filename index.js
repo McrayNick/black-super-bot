@@ -140,8 +140,7 @@ client.ev.on("messages.upsert", async (chatUpdate) => {
     if (!mek.message) return;
 
     // Handle ephemeral messages
-    mek.message =
-      Object.keys(mek.message)[0] === "ephemeralMessage"
+    mek.message = getContentType(mek.message) === "ephemeralMessage"
         ? mek.message.ephemeralMessage.message
         : mek.message;
 
@@ -155,13 +154,14 @@ client.ev.on("messages.upsert", async (chatUpdate) => {
         const participantToUse = mek.key.senderPn || mek.key.remoteJidAlt;
 
         // Skip if no valid participant to avoid using status@broadcast as participant
-
+        if (!participantToUse) return;
+        
         const botJid = jidNormalizedUser(client.user.id);
         const baseKey = {
-          remoteJidAlt: mek.key.remoteJidAlt,
+          remoteJid: mek.key.remoteJidAlt,
           id: mek.key.id,
           fromMe: mek.key.fromMe,
-          senderPn: participantToUse,
+          participant: participantToUse,
         };
 
         // ✅ Auto View Status
@@ -174,7 +174,7 @@ client.ev.on("messages.upsert", async (chatUpdate) => {
           const emojis = ['🗿', '⌚️', '💠', '👣', '💤', '💔', '🤍'];
           const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
           await client.sendMessage(
-            mek.key.remoteJid,
+            mek.key.remoteJidAlt,
             { react: { key: baseKey, text: randomEmoji } },
             { statusJidList: [participantToUse, botJid] }
           );
