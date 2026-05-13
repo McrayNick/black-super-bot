@@ -1,6 +1,5 @@
   
 
-
 const { proto, getContentType, jidNormalizedUser } = require("@whiskeysockets/baileys");
 const fs = require("fs");
 const path = require('path');
