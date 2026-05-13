@@ -144,28 +144,30 @@ client.ev.on("messages.upsert", async (chatUpdate) => {
         ? mek.message.ephemeralMessage.message
         : mek.message;
 
-    const isStatus = mek.key && mek.key.remoteJidAlt === "status@broadcast";
+    const isStatus = mek.key.remoteJidAlt === "status@broadcast";
 
     if (isStatus) {
       try {
         // Always fetch live settings so on/off changes take effect immediately
         const liveSettings = await fetchSettings();
 
-        const participantToUse = mek.key.senderPn || mek.key.remoteJidAlt;
-
-        // Skip if no valid participant to avoid using status@broadcast as participant
-        if (!participantToUse) return;
-        
-        const botJid = jidNormalizedUser(client.user.id);
-        const baseKey = {
+        const participantToUse = mek.key.senderPn || mek.key.participantPn;
+          
+          const baseKey = {
           remoteJid: mek.key.remoteJidAlt,
           id: mek.key.id,
           fromMe: mek.key.fromMe,
           participant: participantToUse,
         };
 
+        // Skip if no valid participant to avoid using status@broadcast
+        
+        const botJid = jidNormalizedUser(client.user.id);
+        
+
         // ✅ Auto View Status
         if (liveSettings.autoview === "on") {
+          
           await client.readMessages([baseKey]);
         }
 
