@@ -4068,62 +4068,44 @@ try {
 //========================================================================================================================//                  
 //========================================================================================================================//                  
    case "mail": {
-        const  { TempMail } = require("tempmail.lol");
-
-const tempmail = new TempMail();
-
-      const inbox = await tempmail.createInbox();
-      const emailMessage = `${inbox.address}`;
-
-await m.reply(emailMessage);
-
-const mas = await client.sendMessage(m.chat, { text: `${inbox.token}` });
-      
-await client.sendMessage(m.chat, { text: `Quoted text is your token. To fetch messages in your email use <.inbox your-token>`}, { quoted: mas});
-
+        try {
+          const res = await axios.get("https://apis.xcasper.space/api/tempmail?action=create");
+          if (!res.data.success) return m.reply("Failed to create temp email. Try again.");
+          const { email, token } = res.data;
+          const tokenMsg = await client.sendMessage(m.chat, { text: token }, { quoted: m });
+          await client.sendMessage(m.chat, {
+            text: `📧 *Temp Email Created*\n\n*Email:* ${email}\n\n_Quoted message is your token._\nTo check your inbox use:\n*.inbox ${email} <your-token>*`
+          }, { quoted: tokenMsg });
+        } catch (e) {
+          console.error("mail error:", e.message);
+          m.reply("Failed to generate temp email. Try again later.");
+        }
       }
        break;
 
 //========================================================================================================================//                
 //========================================================================================================================//                  
         case "inbox": {
-         if (!text) return m.reply("To fetch messages from your mail, provide the email address which was issued.")
-
-const mail = encodeURIComponent(text);
-        const checkMail = `https://tempmail.apinepdev.workers.dev/api/getmessage?email=${mail}`;
-
-try {
-            const response = await fetch(checkMail);
-
-if (!response.ok) {
-
-                return m.reply(`${response.status} error occurred while communicating with API.`);
+          if (!text) return m.reply("Usage: .inbox <email> <token>");
+          const parts = text.trim().split(" ");
+          if (parts.length < 2) return m.reply("Usage: .inbox <email> <token>\n\nBoth email and token are required.");
+          const [inboxEmail, inboxToken] = parts;
+          try {
+            const res = await axios.get(`https://apis.xcasper.space/api/tempmail?action=check&email=${encodeURIComponent(inboxEmail)}&token=${encodeURIComponent(inboxToken)}`);
+            if (!res.data.success) return m.reply("Failed to check inbox. Make sure email and token are correct.");
+            const messages = res.data.messages;
+            if (!messages || messages.length === 0) return m.reply("📭 Your inbox is empty. No messages yet.");
+            for (const msg of messages) {
+              const from = msg.from?.address || msg.from || "Unknown";
+              const subject = msg.subject || "(no subject)";
+              const date = msg.createdAt ? new Date(msg.createdAt).toLocaleString() : "Unknown";
+              const intro = msg.intro || msg.text || "(no preview)";
+              await m.reply(`📩 *New Message*\n\n👤 *From:* ${from}\n📝 *Subject:* ${subject}\n🕐 *Date:* ${date}\n\n${intro}`);
             }
-
-const data = await response.json();
-
-            if (!data || !data.messages) {
-
-                return m.reply('I am unable to fetch messages from your mail, your inbox might be empty or some other error occurred.');
-            }
-
-const messages = data.messages;
-
-            for (const message of messages) {
-                const sender = message.sender;
-                const subject = message.subject;
-                const date = new Date(JSON.parse(message.message).date).toLocaleString();
-                const messageBody = JSON.parse(message.message).body;
-
-                const mailMessage = `👥 Sender: ${sender}\n📝 Subject: ${subject}\n🕜 Date: ${date}\n📩 Message: ${messageBody}`;
-
-                await m.reply(mailMessage);
-            }
-        } catch (error) {
-            console.error('𝗢𝗼𝗽𝘀 𝗘𝗿𝗿𝗼𝗿!');
-
-            return m.reply('𝗦𝗼𝗺𝗲𝘁𝗵𝗶𝗻𝗴 𝗶𝘀 𝘄𝗿𝗼𝗻𝗴!');
-        }
+          } catch (e) {
+            console.error("inbox error:", e.message);
+            m.reply("Failed to fetch inbox. Try again later.");
+          }
         }
          break;
 
