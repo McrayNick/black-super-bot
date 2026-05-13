@@ -5076,7 +5076,7 @@ case "whatsong": case "shazam": {
           if (!/video|audio/i.test(mimes)) return reply("Quote an audio or video message.");
 
           await reply("🎵 Analyzing the media...");
-          let buffer = await d.downloadMediaMessage();
+          let buffer = await client.downloadMediaMessage(d);
 
           let acr = new acrcloud({
             host: 'identify-eu-west-1.acrcloud.com',
