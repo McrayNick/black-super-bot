@@ -932,7 +932,74 @@ break;
         break;
                       
 //========================================================================================================================//          
-        
+case "settings": {
+let text = `
+╔══════════════════════╗
+      ⚙️ *BLACK MD SETTINGS*
+╚══════════════════════╝
+
+╭━━━〔 🛡️ SECURITY SETTINGS 〕━━⬣
+┃ ✦ *Autoread* → on/off
+┃ ✦ *Anticall* → on/off
+┃ ✦ *Antidelete* → on/off
+┃ ✦ *Antilink* → on/off
+┃ ✦ *Antibot* → on/off
+┃ ✦ *Antitag* → on/off
+┃ ✦ *Badword* → on/off
+╰━━━━━━━━━━━━━━━━━━⬣
+
+╭━━━〔 🤖 AUTOMATION SETTINGS 〕━━⬣
+┃ ✦ *Autolike* → on/off
+┃ ✦ *Welcomegoodbye* → on/off
+┃ ✦ *Gptdm* → on/off
+╰━━━━━━━━━━━━━━━━━━⬣
+
+╭━━━〔 🎭 APPEARANCE SETTINGS 〕━━⬣
+┃ ✦ Wapresence
+┃    └ online / typing / recording
+┃
+┃ ✦ Menutype
+┃    └ video / image / link
+┃
+┃ ✦ Prefix
+┃    └ none / ! * † ★ ? $ . /
+╰━━━━━━━━━━━━━━━━━━⬣
+
+╭━━━〔 📌 EXAMPLES 〕━━⬣
+┃ ➤ .set autoread on
+┃ ➤ .set anticall off
+┃ ➤ .set wapresence typing
+┃ ➤ .set menutype video
+┃ ➤ .set prefix !
+┃ ➤ .set gptdm on
+╰━━━━━━━━━━━━━━━━━━⬣
+
+╔══════════════════════╗
+ ⚡ POWERED BY BLACK MD BOT 🖤
+╚══════════════════════╝
+`;
+
+await sock.sendMessage(
+m.chat,
+{
+text: text,
+contextInfo: {
+externalAdReply: {
+title: "BLACK MD SETTINGS PANEL",
+body: "Advanced WhatsApp Bot Controls",
+thumbnailUrl: "https://files.catbox.moe/6w6njn.jpg",
+sourceUrl: "https://github.com",
+mediaType: 1,
+renderLargerThumbnail: true
+}
+}
+},
+{ quoted: m }
+);
+
+}
+break;
+			  
 //========================================================================================================================//
         case "bible":
                       {
