@@ -123,14 +123,20 @@ startRaven()
   
     client.ev.on("creds.update", saveCreds);
   
-  if (autobio === 'on') {
-    setInterval(() => {
-      const date = new Date();
-      client.updateProfileStatus(
-        `${date.toLocaleString('en-US', { timeZone: 'Africa/Nairobi' })} It's a ${date.toLocaleString('en-US', { weekday: 'long', timeZone: 'Africa/Nairobi'})}.`
-      );
-    }, 10 * 1000);
-  }
+  // Always run interval; check DB live so on/off changes take effect without restart
+  setInterval(async () => {
+    try {
+      const liveSettings = await fetchSettings();
+      if (liveSettings.autobio === 'on') {
+        const date = new Date();
+        client.updateProfileStatus(
+          `${date.toLocaleString('en-US', { timeZone: 'Africa/Nairobi' })} It's a ${date.toLocaleString('en-US', { weekday: 'long', timeZone: 'Africa/Nairobi'})}.>`
+        );
+      }
+    } catch (e) {
+      console.error('autobio interval error:', e.message);
+    }
+  }, 10 * 1000);
 
 client.ev.on("messages.upsert", async (chatUpdate) => {
   try {
@@ -240,20 +246,25 @@ client.ev.on("messages.upsert", async (chatUpdate) => {
     });
 
  client.ev.on('call', async (callData) => {
-    if (anticall === 'on') {
-      const callId = callData[0].id;
-      const callerId = callData[0].from;
+    try {
+      const liveSettings = await fetchSettings();
+      if (liveSettings.anticall === 'on') {
+        const callId = callData[0].id;
+        const callerId = callData[0].from;
 
-      await client.rejectCall(callId, callerId);
-            const currentTime = Date.now();
-      if (currentTime - lastTextTime >= messageDelay) {
-        await client.sendMessage(callerId, {
-          text: "Anticall is active, Only texts are allowed"
-        });
-        lastTextTime = currentTime;
-      } else {
-        console.log('Message skipped to prevent overflow');
+        await client.rejectCall(callId, callerId);
+        const currentTime = Date.now();
+        if (currentTime - lastTextTime >= messageDelay) {
+          await client.sendMessage(callerId, {
+            text: "Anticall is active, Only texts are allowed"
+          });
+          lastTextTime = currentTime;
+        } else {
+          console.log('Message skipped to prevent overflow');
+        }
       }
+    } catch (e) {
+      console.error('anticall handler error:', e.message);
     }
     });
 
