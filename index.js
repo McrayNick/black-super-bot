@@ -14,6 +14,7 @@ const pino = require("pino");
 const { Boom } = require("@hapi/boom");
 const fs = require("fs");
 const axios = require("axios");
+const path = require('path');
 const express = require("express");
 const chalk = require("chalk");
 const FileType = require("file-type");
@@ -38,23 +39,53 @@ const color = (text, color) => {
 };
 
 
-async function authenticationn() {
-  try {
-    const credPath = './session/creds.json';
-    
-    if (!fs.existsSync(credPath)) {
-      console.log('Connecting...');
-      await fs.writeFileSync(credPath, atob(session), 'utf8');
-    } else if (session !== '') {
-      await fs.writeFileSync(credPath, atob(session), 'utf8');
-    }
-  } catch (error) {
-    console.log('Session is invalid: ' + error);
-    return;
-  }
-};
+async function authentication() {  
+         try {
+    const sessionDir = path.join(__dirname, 'session');
+    const credPath = path.join(sessionDir, 'creds.json');
 
-authenticationn(); 
+    if (!session || typeof session !== 'string' || session.trim() === '') {
+      throw new Error('SESSION env variable is missing or empty. Set it in your environment.');
+    }
+
+    const delimiterIndex = session.indexOf(':~');
+    if (delimiterIndex === -1) {
+      throw new Error('Invalid session format. Expected: BLACK-MD:~<base64data>');
+    }
+
+    const header = session.slice(0, delimiterIndex);
+    const b64data = session.slice(delimiterIndex + 2);
+
+    if (header !== 'BLACK-MD') {
+      throw new Error(`Invalid session header "${header}". Expected "BLACK-MD".`);
+    }
+
+    if (!b64data || b64data.trim() === '') {
+      throw new Error('Session base64 data is empty after the BLACK-MD:~ prefix.');
+    }
+
+    const decoded = Buffer.from(b64data, 'base64').toString('utf8');
+
+    try {
+      JSON.parse(decoded);
+    } catch (_) {
+      throw new Error('Session data is not valid JSON after decoding. Re-generate your session.');
+    }
+
+    if (!fs.existsSync(sessionDir)) {
+      fs.mkdirSync(sessionDir, { recursive: true });
+    }
+
+    fs.writeFileSync(credPath, decoded, 'utf8');
+    console.log('✅ Session loaded successfully');
+
+  } catch (error) {
+    console.error('❌ Session Error:', error.message);
+    process.exit(1);
+  }
+}
+
+authentication(); 
 
 async function startRaven() {
   let autobio, autolike, autoview, mode, prefix, anticall;

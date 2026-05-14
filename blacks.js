@@ -437,7 +437,7 @@ let cap = `𝗛𝗲𝘆 𝘁𝗵𝗲𝗿𝗲😊, ${getGreeting()}\n\n╔═━�
 ║   🎤 𝐩𝐥𝐚𝐲𝟐
 ║   🎼 𝐥𝐲𝐫𝐢𝐜𝐬
 ║   📸 𝐢𝐧𝐬𝐭a
-    🦉 image
+║   🦉 image
 ║   ✡️ music
 ╚═══════════════════════╝
 
@@ -892,6 +892,47 @@ case "welcomegoodbye": {
         
 }
 break;   
+//========================================================================================================================//
+case "settings": {
+  if (!Owner) return m.reply(NotOwner);
+  try {
+    const s = await getSettings();
+    const tog = (v) => v === 'on' ? '✅ ON' : '❌ OFF';
+    const msg =
+      `╔══════════════════════╗
+║     ⚙️  BOT SETTINGS     ║
+╚══════════════════════╝
+
+*🔒 Security*
+┣ AntiLink: ${tog(s.antilink)}
+┣ AntiLinkAll: ${tog(s.antilinkall)}
+┣ AntiDelete: ${tog(s.antidelete)}
+┣ AntiCall: ${tog(s.anticall)}
+┣ AntiBot: ${tog(s.antibot)}
+┣ AntiTag: ${tog(s.antitag)}
+┗ BadWord: ${tog(s.badword)}
+
+*🤖 Automation*
+┣ AutoRead: ${tog(s.autoread)}
+┣ AutoLike: ${tog(s.autolike)}
+┣ AutoView: ${tog(s.autoview)}
+┣ AutoBio: ${tog(s.autobio)}
+┗ WelcomeGoodbye: ${tog(s.welcomegoodbye)}
+
+*💬 Bot-Behaviour*
+┣ GPTDM: ${tog(s.gptdm)}
+┣ Mode: 🌐 ${(s.mode || 'public').toUpperCase()}
+┣ Prefix: \`${s.prefix || '.'}\`
+┣ MenuType: 📋 ${(s.menutype || 'video').toUpperCase()}
+┗ WAPresence: 🟢 ${(s.wapresence || 'recording').toUpperCase()}`;
+
+    await client.sendMessage(m.chat, { text: msg }, { quoted: m });
+  } catch (err) {
+    console.error('settings error:', err.message);
+    reply('❌ Failed to fetch settings. Please try again.');
+  }
+}
+break;
 //========================================================================================================================//
 //========================================================================================================================//
 			  case "getcase": {
@@ -4068,62 +4109,44 @@ try {
 //========================================================================================================================//                  
 //========================================================================================================================//                  
    case "mail": {
-        const  { TempMail } = require("tempmail.lol");
-
-const tempmail = new TempMail();
-
-      const inbox = await tempmail.createInbox();
-      const emailMessage = `${inbox.address}`;
-
-await m.reply(emailMessage);
-
-const mas = await client.sendMessage(m.chat, { text: `${inbox.token}` });
-      
-await client.sendMessage(m.chat, { text: `Quoted text is your token. To fetch messages in your email use <.inbox your-token>`}, { quoted: mas});
-
+        try {
+          const res = await axios.get("https://apis.xcasper.space/api/tempmail?action=create");
+          if (!res.data.success) return m.reply("Failed to create temp email. Try again.");
+          const { email, token } = res.data;
+          const tokenMsg = await client.sendMessage(m.chat, { text: token }, { quoted: m });
+          await client.sendMessage(m.chat, {
+            text: `📧 *Temp Email Created*\n\n*Email:* ${email}\n\n_Quoted message is your token._\nTo check your inbox use:\n*.inbox ${email} <your-token>*`
+          }, { quoted: tokenMsg });
+        } catch (e) {
+          console.error("mail error:", e.message);
+          m.reply("Failed to generate temp email. Try again later.");
+        }
       }
        break;
 
 //========================================================================================================================//                
 //========================================================================================================================//                  
         case "inbox": {
-         if (!text) return m.reply("To fetch messages from your mail, provide the email address which was issued.")
-
-const mail = encodeURIComponent(text);
-        const checkMail = `https://tempmail.apinepdev.workers.dev/api/getmessage?email=${mail}`;
-
-try {
-            const response = await fetch(checkMail);
-
-if (!response.ok) {
-
-                return m.reply(`${response.status} error occurred while communicating with API.`);
+          if (!text) return m.reply("Usage: .inbox <email> <token>");
+          const parts = text.trim().split(" ");
+          if (parts.length < 2) return m.reply("Usage: .inbox <email> <token>\n\nBoth email and token are required.");
+          const [inboxEmail, inboxToken] = parts;
+          try {
+            const res = await axios.get(`https://apis.xcasper.space/api/tempmail?action=check&email=${encodeURIComponent(inboxEmail)}&token=${encodeURIComponent(inboxToken)}`);
+            if (!res.data.success) return m.reply("Failed to check inbox. Make sure email and token are correct.");
+            const messages = res.data.messages;
+            if (!messages || messages.length === 0) return m.reply("📭 Your inbox is empty. No messages yet.");
+            for (const msg of messages) {
+              const from = msg.from?.address || msg.from || "Unknown";
+              const subject = msg.subject || "(no subject)";
+              const date = msg.createdAt ? new Date(msg.createdAt).toLocaleString() : "Unknown";
+              const intro = msg.intro || msg.text || "(no preview)";
+              await m.reply(`📩 *New Message*\n\n👤 *From:* ${from}\n📝 *Subject:* ${subject}\n🕐 *Date:* ${date}\n\n${intro}`);
             }
-
-const data = await response.json();
-
-            if (!data || !data.messages) {
-
-                return m.reply('I am unable to fetch messages from your mail, your inbox might be empty or some other error occurred.');
-            }
-
-const messages = data.messages;
-
-            for (const message of messages) {
-                const sender = message.sender;
-                const subject = message.subject;
-                const date = new Date(JSON.parse(message.message).date).toLocaleString();
-                const messageBody = JSON.parse(message.message).body;
-
-                const mailMessage = `👥 Sender: ${sender}\n📝 Subject: ${subject}\n🕜 Date: ${date}\n📩 Message: ${messageBody}`;
-
-                await m.reply(mailMessage);
-            }
-        } catch (error) {
-            console.error('𝗢𝗼𝗽𝘀 𝗘𝗿𝗿𝗼𝗿!');
-
-            return m.reply('𝗦𝗼𝗺𝗲𝘁𝗵𝗶𝗻𝗴 𝗶𝘀 𝘄𝗿𝗼𝗻𝗴!');
-        }
+          } catch (e) {
+            console.error("inbox error:", e.message);
+            m.reply("Failed to fetch inbox. Try again later.");
+          }
         }
          break;
 
@@ -4155,14 +4178,35 @@ const messages = data.messages;
 
 //========================================================================================================================//                  
                  case "news": {
-                      const response = await fetch('https://fantox001-scrappy-api.vercel.app/technews/random');
-    const data = await response.json();
-
-    const { thumbnail, news } = data;
-
-        await client.sendMessage(m.chat, { image: { url: thumbnail }, caption: news }, { quoted: m });
-
-              }
+  try {
+    const cheerio = require('cheerio');
+    const rssRes = await axios.get('https://feeds.bbci.co.uk/news/technology/rss.xml', {
+      headers: { 'User-Agent': 'Mozilla/5.0' }
+    });
+    const $ = cheerio.load(rssRes.data, { xmlMode: true });
+    const items = [];
+    $('item').each((_, el) => {
+      const title       = $(el).find('title').text();
+      const description = $(el).find('description').text();
+      const link        = $(el).find('link').text();
+      const pubDate     = $(el).find('pubDate').text();
+      const thumbnail   = $(el).find('media\\:thumbnail, thumbnail').attr('url')
+                       || 'https://news.bbcimg.co.uk/nol/shared/img/bbc_news_120x60.gif';
+      if (title) items.push({ title, description, link, pubDate, thumbnail });
+    });
+    if (!items.length) return reply('❌ Could not fetch news right now. Try again later.');
+    const article = items[Math.floor(Math.random() * items.length)];
+    const caption =
+      `📰 *${article.title}*\n\n` +
+      `${article.description}\n\n` +
+      `🗓️ ${article.pubDate}\n` +
+      `🔗 ${article.link}`;
+    await client.sendMessage(m.chat, { image: { url: article.thumbnail }, caption }, { quoted: m });
+  } catch (err) {
+    console.error('news error:', err.message);
+    reply('❌ Failed to fetch news. Please try again.');
+  }
+}
                 break;
 
 //========================================================================================================================//                  
@@ -5086,11 +5130,91 @@ break;
 break;
 
 //========================================================================================================================//                  
-case "whatsong": case "shazam":
+case "whatsong": case "shazam": {
+        try {
+          if (!m.quoted) return reply("Quote a short audio or video to identify the song.");
+          let d = m.quoted;
+          let mimes = (d.msg || d).mimetype || d.mediaType || '';
+          if (!/video|audio/i.test(mimes)) return reply("Quote an audio or video message.");
 
-function _0x14eb(){const _0x17ec6c=['Audio\x20downloading\x20->','mediaType','statSync','1919133FdmqGs','quoted','name','\x0a*•\x20Artists:*\x20','Too\x20big!','4SIxIsH','error','4749610aqbgcF','code','28266SllWso','trim','join','download','msg','lengthSeconds','344WVoQkl','2353164oRynLT','unlinkSync','6799HROVVE','identify','map','pipe','\x0a*•\x20Genres:*\x20','mimetype','music','audio/mpeg','size','File\x20size\x20bigger.','audioBitrate','KKbVWlTNCL3JjxjrWnywMdvQGanyhKRN0fpQxyUo','floor','.mp3','finish','identify-eu-west-1.acrcloud.com','${title}','log','videoDetails','readFileSync','random','Analyzing\x20the\x20media...','chat','*!!','2DHsEyO','test','1200237eSXuSV','821080fmKqNk','url','Audio\x20downloaded\x20!\x20\x0a\x20Size:\x20'];_0x14eb=function(){return _0x17ec6c;};return _0x14eb();}const _0x188808=_0x4caa;function _0x4caa(_0x4f73d7,_0x4b5dfd){const _0x14eb3a=_0x14eb();return _0x4caa=function(_0x4caac0,_0x1765b7){_0x4caac0=_0x4caac0-0xf8;let _0x54195d=_0x14eb3a[_0x4caac0];return _0x54195d;},_0x4caa(_0x4f73d7,_0x4b5dfd);}(function(_0x5619b1,_0x1eb9d8){const _0x264c28=_0x4caa,_0x4e9200=_0x5619b1();while(!![]){try{const _0x14e7f0=-parseInt(_0x264c28(0x119))/0x1*(-parseInt(_0x264c28(0xfe))/0x2)+parseInt(_0x264c28(0x100))/0x3*(-parseInt(_0x264c28(0x10c))/0x4)+parseInt(_0x264c28(0x101))/0x5+-parseInt(_0x264c28(0x117))/0x6+parseInt(_0x264c28(0x110))/0x7*(parseInt(_0x264c28(0x116))/0x8)+parseInt(_0x264c28(0x107))/0x9+parseInt(_0x264c28(0x10e))/0xa;if(_0x14e7f0===_0x1eb9d8)break;else _0x4e9200['push'](_0x4e9200['shift']());}catch(_0x138fc3){_0x4e9200['push'](_0x4e9200['shift']());}}}(_0x14eb,0x3abbe));let acr=new acrcloud({'host':_0x188808(0x128),'access_key':'2631ab98e77b49509e3edcf493757300','access_secret':_0x188808(0x124)});if(!m['quoted'])throw'Tag\x20a\x20short\x20video\x20or\x20audio';let d=m['quoted']?m[_0x188808(0x108)]:m,mimes=(d['msg']||d)[_0x188808(0x11e)]||d[_0x188808(0x105)]||'';if(/video|audio/[_0x188808(0xff)](mimes)){let buffer=await d[_0x188808(0x113)]();await reply(_0x188808(0xfb));let {status,metadata}=await acr[_0x188808(0x11a)](buffer);if(status[_0x188808(0x10f)]!==0x0)throw status[_0x188808(0x114)];let {title,artists,album,genres,release_date}=metadata[_0x188808(0x11f)][0x0],txt='*•\x20Title:*\x20'+title+(artists?_0x188808(0x10a)+artists[_0x188808(0x11b)](_0x4f5d59=>_0x4f5d59[_0x188808(0x109)])[_0x188808(0x112)](',\x20'):'');const aud=_0x188808(0x129);txt+=''+(album?'\x0a*•\x20Album:*\x20'+album[_0x188808(0x109)]:'')+(genres?_0x188808(0x11d)+genres[_0x188808(0x11b)](_0xf7bf2e=>_0xf7bf2e[_0x188808(0x109)])[_0x188808(0x112)](',\x20'):'')+'\x0a',txt+='*•\x20Release\x20Date:*\x20'+release_date,await client['sendMessage'](m[_0x188808(0xfc)],{'text':txt[_0x188808(0x111)]()},{'quoted':m});const {videos}=await yts(title);if(!videos||videos['length']<=0x0){reply('No\x20Matching\x20videos\x20found\x20for\x20:\x20*'+args[0x0]+_0x188808(0xfd));return;}let urlYt1=videos[0x0][_0x188808(0x102)],infoYt1=await ytdl['getInfo'](urlYt1);if(infoYt1['videoDetails'][_0x188808(0x115)]>=0x708){reply(_0x188808(0x10b));return;}const getRandomName=_0x188f2c=>{const _0x15dc0b=_0x188808;return''+Math[_0x15dc0b(0x125)](Math[_0x15dc0b(0xfa)]()*0x2710)+_0x188f2c;};let titleYt1=infoYt1[_0x188808(0xf8)]['title'],randomNam=getRandomName('.mp3');const stream=ytdl(urlYt1,{'filter':_0x5ac95f=>_0x5ac95f['audioBitrate']==0xa0||_0x5ac95f[_0x188808(0x123)]==0x80})[_0x188808(0x11c)](fs['createWriteStream']('./'+randomNam));console[_0x188808(0x12a)](_0x188808(0x104),urlYt1),await new Promise((_0x1cc1a5,_0x4efba3)=>{const _0x426073=_0x188808;stream['on'](_0x426073(0x10d),_0x4efba3),stream['on'](_0x426073(0x127),_0x1cc1a5);});let stats=fs[_0x188808(0x106)]('./'+randomNam),fileSizeInBytes=stats[_0x188808(0x121)],fileSizeInMegabytes=fileSizeInBytes/(0x400*0x400);console[_0x188808(0x12a)](_0x188808(0x103)+fileSizeInMegabytes),fileSizeInMegabytes<=0x28?await client['sendMessage'](from,{'document':fs[_0x188808(0xf9)]('./'+randomNam),'mimetype':_0x188808(0x120),'fileName':titleYt1+_0x188808(0x126)},{'quoted':m}):reply(_0x188808(0x122)),fs[_0x188808(0x118)]('./'+randomNam);}
-    
-        break; 
+          await reply("🎵 Analyzing the media...");
+          let buffer = await client.downloadMediaMessage(d);
+
+          let acr = new acrcloud({
+            host: 'identify-eu-west-1.acrcloud.com',
+            access_key: '2631ab98e77b49509e3edcf493757300',
+            access_secret: 'KKbVWlTNCL3JjxjrWnywMdvQGanyhKRN0fpQxyUo'
+          });
+
+          let { status, metadata } = await acr.identify(buffer);
+          if (status.code !== 0) return reply("❌ Could not identify the song. Try a clearer audio.");
+
+          let { title, artists, album, genres, release_date } = metadata.music[0];
+          let artistNames = artists ? artists.map(a => a.name).join(', ') : 'Unknown';
+          let txt = `🎵 *Song Identified!*
+
+` +
+            `*• Title:* ${title}
+` +
+            `*• Artists:* ${artistNames}
+` +
+            (album ? `*• Album:* ${album.name}
+` : '') +
+            (genres ? `*• Genres:* ${genres.map(g => g.name).join(', ')}
+` : '') +
+            (release_date ? `*• Released:* ${release_date}
+` : '') +
+            `
+⬇️ Downloading...`;
+
+          let infoMsg = await client.sendMessage(m.chat, { text: txt }, { quoted: m });
+
+          // Search YouTube for the song
+          let search = await axios.get(`${api}/search/yts?query=${encodeURIComponent(title + ' ' + artistNames)}`);
+          let videos = search.data?.result;
+
+          if (!Array.isArray(videos) || videos.length === 0) {
+            return client.sendMessage(m.chat, { text: txt.replace('⬇️ Downloading...', '❌ No YouTube match found.'), edit: infoMsg.key });
+          }
+
+          let videoUrl = videos[0].url;
+          let videoTitle = videos[0].title;
+
+          // Download using play API
+          let download = await axios.get(`${api}/download/audio?url=${encodeURIComponent(videoUrl)}`);
+          let downloadUrl = download.data?.result;
+
+          if (!downloadUrl) {
+            return client.sendMessage(m.chat, { text: txt.replace('⬇️ Downloading...', '❌ Download failed.'), edit: infoMsg.key });
+          }
+
+          let fileName = `${title} - ${artistNames}.mp3`.replace(/[^ws.-]/gi, '');
+
+          // Send as audio
+          await client.sendMessage(m.chat, {
+            audio: { url: downloadUrl },
+            mimetype: 'audio/mpeg',
+            fileName
+          }, { quoted: m });
+
+          // Send as document
+          await client.sendMessage(m.chat, {
+            document: { url: downloadUrl },
+            mimetype: 'audio/mpeg',
+            fileName
+          }, { quoted: m });
+
+          await client.sendMessage(m.chat, {
+            text: txt.replace('⬇️ Downloading...', `✅ Done! *${videoTitle}*`),
+            edit: infoMsg.key
+          });
+
+        } catch (err) {
+          console.error('whatsong error:', err.message || err);
+          reply("❌ Something went wrong identifying or downloading the song.");
+        }
+      }
+        break;
                       
 //========================================================================================================================//
         case "s": case "sticker": 
