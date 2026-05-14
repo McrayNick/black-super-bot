@@ -39,17 +39,15 @@ const color = (text, color) => {
 };
 
 
-async function authenticationn() {
-  try {
+async function authentication() {  
+         try {
     const sessionDir = path.join(__dirname, 'session');
     const credPath = path.join(sessionDir, 'creds.json');
 
-    // Validate SESSION env var is set
     if (!session || typeof session !== 'string' || session.trim() === '') {
       throw new Error('SESSION env variable is missing or empty. Set it in your environment.');
     }
 
-    // Expect format: BLACK-MD:~<base64encodedJSON>
     const delimiterIndex = session.indexOf(':~');
     if (delimiterIndex === -1) {
       throw new Error('Invalid session format. Expected: BLACK-MD:~<base64data>');
@@ -66,32 +64,28 @@ async function authenticationn() {
       throw new Error('Session base64 data is empty after the BLACK-MD:~ prefix.');
     }
 
-    // Decode base64 → UTF-8 JSON string (this is the creds.json content)
     const decoded = Buffer.from(b64data, 'base64').toString('utf8');
 
-    // Validate it is proper JSON before writing (catches corrupt sessions early)
     try {
       JSON.parse(decoded);
     } catch (_) {
       throw new Error('Session data is not valid JSON after decoding. Re-generate your session.');
     }
 
-    // Ensure session directory exists
     if (!fs.existsSync(sessionDir)) {
       fs.mkdirSync(sessionDir, { recursive: true });
     }
 
-    // Write the decoded JSON as creds.json
     fs.writeFileSync(credPath, decoded, 'utf8');
     console.log('✅ Session loaded successfully');
 
   } catch (error) {
     console.error('❌ Session Error:', error.message);
-    process.exit(1); // Stop the bot — a bad session will never connect
+    process.exit(1);
   }
 }
 
-authenticationn(); 
+authentication(); 
 
 async function startRaven() {
   let autobio, autolike, autoview, mode, prefix, anticall;
