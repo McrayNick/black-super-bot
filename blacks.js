@@ -5151,13 +5151,13 @@ if (!m.quoted) return m.reply("quote a viewonce message eh")
     if (quotedMessage.imageMessage) {
       let imageCaption = quotedMessage.imageMessage.caption;
       let imageUrl = await client.downloadAndSaveMediaMessage(quotedMessage.imageMessage);
-      client.sendMessage(m.chat, { image: { url: imageUrl }, caption: `Retrieved by Blackie!\n${imageCaption}`}, { quoted: m });
+      client.sendMessage(m.chat, { image: { url: imageUrl }, caption: `Retrieved by 𝐁𝐋𝐀𝐂𝐊-𝐌𝐃!\n${imageCaption}`}, { quoted: m });
     }
 
     if (quotedMessage.videoMessage) {
       let videoCaption = quotedMessage.videoMessage.caption;
       let videoUrl = await client.downloadAndSaveMediaMessage(quotedMessage.videoMessage);
-      client.sendMessage(m.chat, { video: { url: videoUrl }, caption: `Retrieved by Blackie!\n${videoCaption}`}, { quoted: m });
+      client.sendMessage(m.chat, { video: { url: videoUrl }, caption: `Retrieved by 𝐁𝐋𝐀𝐂𝐊-𝐌𝐃!\n${videoCaption}`}, { quoted: m });
     }
       }
         break;
