@@ -14,6 +14,7 @@ const pino = require("pino");
 const { Boom } = require("@hapi/boom");
 const fs = require("fs");
 const axios = require("axios");
+const path = require('path');
 const express = require("express");
 const chalk = require("chalk");
 const FileType = require("file-type");
