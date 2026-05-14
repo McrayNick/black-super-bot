@@ -1810,7 +1810,7 @@ break;
                     }
                 );
 
-                await m.reply("Your bot is undergoing a ruthless upgrade, hold tight for the next 2 minutes as the redeploy executes! Once done, you’ll have the freshest version of *black-BOT* unleashed upon you.");
+                await m.reply("Your bot is undergoing a ruthless upgrade, hold tight for the next 2 minutes as the redeploy executes! Once done, you’ll have the freshest version of *BLACK-MD BOT* unleashed upon you.");
                 console.log("Build details:", response.data);
             } catch (error) {
                 const errorMessage = error.response?.data || error.message;
