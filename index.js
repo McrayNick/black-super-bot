@@ -40,19 +40,55 @@ const color = (text, color) => {
 
 async function authenticationn() {
   try {
-    const credPath = './session/creds.json';
-    
-    if (!fs.existsSync(credPath)) {
-      console.log('Connecting...');
-      await fs.writeFileSync(credPath, atob(session), 'utf8');
-    } else if (session !== '') {
-      await fs.writeFileSync(credPath, atob(session), 'utf8');
+    const sessionDir = path.join(__dirname, 'session');
+    const credPath = path.join(sessionDir, 'creds.json');
+
+    // Validate SESSION env var is set
+    if (!session || typeof session !== 'string' || session.trim() === '') {
+      throw new Error('SESSION env variable is missing or empty. Set it in your environment.');
     }
+
+    // Expect format: BLACK-MD:~<base64encodedJSON>
+    const delimiterIndex = session.indexOf(':~');
+    if (delimiterIndex === -1) {
+      throw new Error('Invalid session format. Expected: BLACK-MD:~<base64data>');
+    }
+
+    const header = session.slice(0, delimiterIndex);
+    const b64data = session.slice(delimiterIndex + 2);
+
+    if (header !== 'BLACK-MD') {
+      throw new Error(`Invalid session header "${header}". Expected "BLACK-MD".`);
+    }
+
+    if (!b64data || b64data.trim() === '') {
+      throw new Error('Session base64 data is empty after the BLACK-MD:~ prefix.');
+    }
+
+    // Decode base64 → UTF-8 JSON string (this is the creds.json content)
+    const decoded = Buffer.from(b64data, 'base64').toString('utf8');
+
+    // Validate it is proper JSON before writing (catches corrupt sessions early)
+    try {
+      JSON.parse(decoded);
+    } catch (_) {
+      throw new Error('Session data is not valid JSON after decoding. Re-generate your session.');
+    }
+
+    // Ensure session directory exists
+    if (!fs.existsSync(sessionDir)) {
+      fs.mkdirSync(sessionDir, { recursive: true });
+    }
+
+    // Write the decoded JSON as creds.json
+    fs.writeFileSync(credPath, decoded, 'utf8');
+    console.log('✅ Session loaded successfully');
+
   } catch (error) {
-    console.log('Session is invalid: ' + error);
-    return;
+    console.error('❌ Session Error:', error.message);
+    process.exit(1); // Stop the bot — a bad session will never connect
   }
-};
+}
 
 authenticationn(); 
 
