@@ -111,10 +111,10 @@ module.exports = raven = async (client, m, chatUpdate, store) => {
       const numericPart = jid.split(':')[0].split('@')[0].replace('.0', '');
       return numericPart + '@s.whatsapp.net';
   }
-	  
+          
 //========================================================================================================================//
 //========================================================================================================================// 
-	  
+          
 const mek = chatUpdate.messages[0];
           
           const sendr = mek.key.fromMe 
@@ -130,7 +130,7 @@ const mek = chatUpdate.messages[0];
 
 
 //========================================================================================================================//
-//========================================================================================================================//	  
+//========================================================================================================================//      
 function getBotLid(client) {
     if (!client?.user) return null;
 
@@ -155,7 +155,7 @@ function getBotLid(client) {
     return null;
 }
 //========================================================================================================================//
-//========================================================================================================================//	  
+//========================================================================================================================//      
 //========================================================================================================================//      
     const Heroku = require("heroku-client");  
     const command = body.replace(prefix, "").trim().split(/ +/).shift().toLowerCase();
@@ -171,10 +171,10 @@ function getBotLid(client) {
     const sender = sendr;
 //========================================================================================================================//
     // Create superUser array safely
-	  const botLid = getBotLid(client);
-	  
+          const botLid = getBotLid(client);
+          
     const superUser = [
-	botLid,
+        botLid,
     standardizeJid(botNumber),
     ...owner.map(num => `${num}@s.whatsapp.net`)
 ].map(jid => standardizeJid(jid)).filter(Boolean);
@@ -290,15 +290,15 @@ if (antidelete === "on") {
 };
 //========================================================================================================================//
 
-	  if (antibot === 'on' && mek.key.id.startsWith('BAE5') && mek.key.id.length === 16 && m.isGroup && !isAdmin && isBotAdmin) {
+          if (antibot === 'on' && mek.key.id.startsWith('BAE5') && mek.key.id.length === 16 && m.isGroup && !isAdmin && isBotAdmin) {
   const kidts = sender;
   client.sendMessage(m.chat, {
     text: `BLACK-MD antibot:\n\n@${kidts.split('@')[0]} has been identified as a bot. Removed to prevent unnecessary spam!`,
     contextInfo: { mentionedJid: [kidts] }
   }, { quoted: m });
   await client.groupParticipantsUpdate(m.chat, [kidts], 'remove');
-	  };
-	  
+          };
+          
 //========================================================================================================================//      
 //========================================================================================================================// 
 async function mp3d () {        
@@ -961,7 +961,7 @@ case "settings": {
 break;
 //========================================================================================================================//
 //========================================================================================================================//
-			  case "getcase": {
+                          case "getcase": {
 if (!Owner) return reply(NotOwner)
 if (!text) return reply("Example usage:- getcase menu")
 const getcase = (cases) => {
@@ -1102,7 +1102,7 @@ case 'quran': {
       )?.[1];
 
       if (!videoId) return m.reply("❌ Invalid YouTube link.");
-		
+                
 videoTitle = "YouTube Audio";
 
     } else {
@@ -1197,7 +1197,7 @@ case "video": {
   try {
     await client.sendMessage(m.chat, { react: { text: "🎬", key: m.key } });
 
-	  let msg = await client.sendMessage(m.chat, {
+          let msg = await client.sendMessage(m.chat, {
       text: `🔍 Searching *${text}*...`
     }, { quoted: m });
 
@@ -1230,7 +1230,7 @@ case "video": {
       videoUrl = first.url;
       videoTitle = first.title;
     }
-	  
+          
 await client.sendMessage(m.chat, {
       text: `😍 Found: *${videoTitle}*`,
       edit: msg.key
@@ -1240,19 +1240,19 @@ await client.sendMessage(m.chat, {
       text: `✅ Downloading: *${videoTitle}*`,
       edit: msg.key
     });
-	  
+          
     // 📥 Get download link (force lower quality if supported)
     let download = await axios.get(
       `${api}/download/mp4?url=${encodeURIComponent(videoUrl)}`
     );
     let downloadUrl = download.data?.result;
-	  
-	  if (!downloadUrl) {
+          
+          if (!downloadUrl) {
       return client.sendMessage(m.chat, {
         text: "❌ Failed to get audio.",
         edit: msg.key
       });
-	  }
+          }
 
     // 🔍 Validate file type
     let head = await axios.head(downloadUrl).catch(() => null);
@@ -1287,12 +1287,12 @@ await client.sendMessage(m.chat, {
       },
       { quoted: m }
     );
-	  
+          
 await client.sendMessage(m.chat, {
       text: `✅ Succesfully Downloaded  *${videoTitle}* `,
       edit: msg.key
     });
-	  
+          
   } catch (err) {
     console.log("Video error:", err);
     m.reply("❌ Error downloading video. API may be unstable.");
@@ -1805,8 +1805,8 @@ try {
 }
 break;
                           
-//========================================================================================================================//                  		  
-//========================================================================================================================//			  
+//========================================================================================================================//                              
+//========================================================================================================================//                      
 //========================================================================================================================//
 //========================================================================================================================//                  
 //========================================================================================================================//                  
@@ -3240,7 +3240,7 @@ case "img": {
 break;
 //========================================================================================================================//
 
-			  case "toaudio":
+                          case "toaudio":
 case "audioe": {
   const fs = require("fs");
 
@@ -3275,12 +3275,12 @@ case "audioe": {
   }
 }
 break;
-			  
+                          
 //========================================================================================================================//
 //========================================================================================================================//
               case 'img3':
-		      case'image3':
-			  {
+                      case'image3':
+                          {
                 if (!text) return reply(`🖼️ Provide a word!\nExample: *${prefix}image mia khalifa*`);
                 try {
                   await reply(`🔍 Searching images for: *${text}*...`);
@@ -3997,6 +3997,7 @@ if (isTele) {
 let fta2 = await client.downloadAndSaveMediaMessage(q)
 
     let link = await uploadToUguu(fta2)
+    try { fs.unlinkSync(fta2); } catch(e) {}
 
     const fileSizeMB = (mediaBuffer.length / (1024 * 1024)).toFixed(2)
 
@@ -4115,7 +4116,7 @@ reply(resultt4.stderr)
 case "eval": {
    if (!Owner) return m.reply(NotOwner); 
 if (!text) return reply('Provide a valid Bot Baileys Function to evaluate');
-	
+        
 try { 
    let evaled = await eval(text); 
  if (typeof evaled !== 'string') evaled = require('util').inspect(evaled); 
@@ -5360,7 +5361,8 @@ let stickerResult = new Sticker(result, {
             background: "transparent",
           });
 const Buffer = await stickerResult.toBuffer();
-          client.sendMessage(m.chat, { sticker: Buffer }, { quoted: m });
+          client.sendMessage(m.chat, { sticker: Buffer }, { quoted: m })
+            .then(() => { try { fs.unlinkSync(result); } catch(e) {} });
 
 }
 break;
@@ -5392,13 +5394,15 @@ if (!m.quoted) return m.reply("quote a viewonce message eh")
     if (quotedMessage.imageMessage) {
       let imageCaption = quotedMessage.imageMessage.caption;
       let imageUrl = await client.downloadAndSaveMediaMessage(quotedMessage.imageMessage);
-      client.sendMessage(m.chat, { image: { url: imageUrl }, caption: `Retrieved by 𝐁𝐋𝐀𝐂𝐊-𝐌𝐃!\n${imageCaption}`}, { quoted: m });
+      client.sendMessage(m.chat, { image: { url: imageUrl }, caption: `Retrieved by 𝐁𝐋𝐀𝐂𝐊-𝐌𝐃!\n${imageCaption}`}, { quoted: m })
+        .then(() => { try { fs.unlinkSync(imageUrl); } catch(e) {} });
     }
 
     if (quotedMessage.videoMessage) {
       let videoCaption = quotedMessage.videoMessage.caption;
       let videoUrl = await client.downloadAndSaveMediaMessage(quotedMessage.videoMessage);
-      client.sendMessage(m.chat, { video: { url: videoUrl }, caption: `Retrieved by 𝐁𝐋𝐀𝐂𝐊-𝐌𝐃!\n${videoCaption}`}, { quoted: m });
+      client.sendMessage(m.chat, { video: { url: videoUrl }, caption: `Retrieved by 𝐁𝐋𝐀𝐂𝐊-𝐌𝐃!\n${videoCaption}`}, { quoted: m })
+        .then(() => { try { fs.unlinkSync(videoUrl); } catch(e) {} });
     }
       }
         break;
@@ -5413,13 +5417,15 @@ if (!m.quoted) return m.reply("quote a viewonce message eh")
     if (quotedMessage.imageMessage) {
       let imageCaption = quotedMessage.imageMessage.caption;
       let imageUrl = await client.downloadAndSaveMediaMessage(quotedMessage.imageMessage);
-      client.sendMessage(client.user.id, { image: { url: imageUrl }, caption: `Retrieved by Blackie!\n${imageCaption}`}, { quoted: m });
+      client.sendMessage(client.user.id, { image: { url: imageUrl }, caption: `Retrieved by Blackie!\n${imageCaption}`}, { quoted: m })
+        .then(() => { try { fs.unlinkSync(imageUrl); } catch(e) {} });
     }
 
     if (quotedMessage.videoMessage) {
       let videoCaption = quotedMessage.videoMessage.caption;
       let videoUrl = await client.downloadAndSaveMediaMessage(quotedMessage.videoMessage);
-      client.sendMessage(client.user.id, { video: { url: videoUrl }, caption: `Retrieved by Blackie!\n${videoCaption}`}, { quoted: m });
+      client.sendMessage(client.user.id, { video: { url: videoUrl }, caption: `Retrieved by Blackie!\n${videoCaption}`}, { quoted: m })
+        .then(() => { try { fs.unlinkSync(videoUrl); } catch(e) {} });
     }
       }
         break;
@@ -5453,7 +5459,8 @@ let stickerResult = new Sticker(result, {
             background: "transparent",
           });
 const Buffer = await stickerResult.toBuffer();
-          client.sendMessage(m.chat, { sticker: Buffer }, { quoted: m });
+          client.sendMessage(m.chat, { sticker: Buffer }, { quoted: m })
+            .then(() => { try { fs.unlinkSync(result); } catch(e) {} });
 
 }
 break;
