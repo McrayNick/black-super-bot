@@ -3165,12 +3165,99 @@ break;
 
 //========================================================================================================================//
 //========================================================================================================================// 
+case "image":
+case "img": {
+  const axios = require("axios");
 
+  if (!text) {
+    return m.reply(`📌 *Image Search*
+    
+*Usage:* .imagesearch dog
+*Aliases:* .imgsearch, .photosearch`);
+  }
+
+  await m.reply(`🔍 Searching for "${text}"...`);
+
+  try {
+    const { data } = await axios.get(`${api}/search/images?query=${encodeURIComponent(text)}`);
+    
+    if (!data.status || !data.result?.length) {
+      return m.reply("❌ No images found.");
+    }
+
+    const album = [];
+    for (let i = 0; i < Math.min(data.result.length, 10); i++) {
+      const img = data.result[i];
+      const imageUrl = img.thumbnail || img.url;
+
+      if (imageUrl) {
+        album.push({
+          image: { url: imageUrl },
+          caption: i === 0
+            ? `🔎 *${text}*\n📸 ${data.result.length} results`
+            : undefined
+        });
+      }
+    }
+
+    if (album.length === 0) {
+      return m.reply("❌ Failed to load images.");
+    }
+
+    await client.sendMessage(
+      m.chat,
+      { album },
+      { quoted: m }
+    );
+
+  } catch (err) {
+    console.error("imagesearch error:", err);
+    m.reply("❌ Error: " + err.message);
+  }
+}
+break;
+//========================================================================================================================//
+
+			  case "toaudio":
+case "audioe": {
+  const fs = require("fs");
+
+  const mediaType = quoted?.videoMessage || quoted?.audioMessage;
+
+  if (!mediaType) {
+    return m.reply("❌ Quote an audio or video to convert to MP3.");
+  }
+
+  try {
+
+    // Download quoted media
+    const mediaPath = await client.downloadMediaMessage(mediaType);
+    const buffer = fs.readFileSync(mediaPath);
+
+    // Send as audio/mp3 directly
+    await client.sendMessage(
+      m.chat,
+      {
+        audio: buffer,
+        mimetype: "audio/mpeg"
+      },
+      { quoted: m }
+    );
+
+    // Cleanup
+    fs.unlinkSync(mediaPath);
+
+  } catch (error) {
+    console.error("toaudio error:", error);
+    await m.reply("❌ An error occurred while converting the media.");
+  }
+}
+break;
+			  
 //========================================================================================================================//
 //========================================================================================================================//
-//========================================================================================================================//
-              case 'img':
-		      case'image':
+              case 'img3':
+		      case'image3':
 			  {
                 if (!text) return reply(`🖼️ Provide a word!\nExample: *${prefix}image mia khalifa*`);
                 try {
@@ -5723,7 +5810,7 @@ await client.sendMessage(m.chat, { image: { url: pp },
     try {
       await m.reply('🎬 _Converting sticker to video..._');
 
-      media = await client.downloadAndSaveMediaMessage(quoted);
+      media = await client.downloadMediaMessage(quoted);
       const converted = await webp2mp4File(media);
       outputPath = converted.result;
 
