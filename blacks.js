@@ -3756,30 +3756,33 @@ let regex1 = /(?:https|git)(?::\/\/|@)github\.com[\/:]([^\/:]+)\/(.+)/i
  if (!text) return m.reply('Provide a github username to stalk');
  
 try {
-const response = await fetch(`https://itzpire.com/stalk/github-user?username=${text}`)
+const response = await fetch(`https://api.github.com/users/${encodeURIComponent(text)}`, {
+  headers: { 'User-Agent': 'BlackMD-Bot' }
+})
+
+if (response.status === 404) return m.reply(`❌ GitHub user "${text}" not found.`)
+if (!response.ok) return m.reply(`❌ GitHub API error: ${response.status}`)
 
 const data = await response.json()
  
-    const username = data.data.username;
-    const nickname = data.data.nickname;
-    const bio = data.data.bio;
-    const profilePic = data.data.profile_pic;
-    const url = data.data.url;
-    const type = data.data.type;
-    const isAdmin = data.data.admin;
-    const company = data.data.company;
-    const blog = data.data.blog;
-    const location = data.data.location;
-    const publicRepos = data.data.public_repo;
-    const publicGists = data.data.public_gists;
-    const followers = data.data.followers;
-    const following = data.data.following;
-    const createdAt = data.data.ceated_at;
-    const updatedAt = data.data.updated_at;
+    const username = data.login || 'N/A';
+    const nickname = data.name || 'N/A';
+    const bio = data.bio || 'N/A';
+    const profilePic = data.avatar_url;
+    const url = data.html_url;
+    const type = data.type || 'N/A';
+    const company = data.company || 'N/A';
+    const blog = data.blog || 'N/A';
+    const location = data.location || 'N/A';
+    const publicRepos = data.public_repos ?? 0;
+    const publicGists = data.public_gists ?? 0;
+    const followers = data.followers ?? 0;
+    const following = data.following ?? 0;
+    const createdAt = data.created_at ? new Date(data.created_at).toDateString() : 'N/A';
     
-const message = `Username:- ${username}\n\nNickname:- ${nickname}\n\nBio:- ${bio}\n\nLink:- ${url}\n\nLocation:- ${location}\n\nFollowers:- ${followers}\n\nFollowing:- ${following}\n\nRepos:- ${publicRepos}\n\nCreated:- ${createdAt}`
+const message = `*GitHub User Info*\n\nUsername:- ${username}\n\nNickname:- ${nickname}\n\nBio:- ${bio}\n\nLink:- ${url}\n\nLocation:- ${location}\n\nCompany:- ${company}\n\nBlog:- ${blog}\n\nFollowers:- ${followers}\n\nFollowing:- ${following}\n\nRepos:- ${publicRepos}\n\nGists:- ${publicGists}\n\nAccount Type:- ${type}\n\nCreated:- ${createdAt}`
 
-await client.sendMessage(m.chat, { image: { url: profilePic}, caption: message}, {quoted: m})
+await client.sendMessage(m.chat, { image: { url: profilePic }, caption: message }, { quoted: m })
 
 } catch (error) {
 
