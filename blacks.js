@@ -3230,7 +3230,9 @@ case "img": {
       return m.reply("❌ Failed to load images.");
     }
 
-    await client.sendMessage(m.chat, `${album}`, { quoted: m });
+    for (const item of album) {
+      await client.sendMessage(m.chat, item, { quoted: m });
+    }
 
   } catch (err) {
     console.error("imagesearch error:", err);
@@ -3252,9 +3254,8 @@ case "audioe": {
 
   try {
 
-    // Download quoted media
-    const mediaPath = await client.downloadMediaMessage(mediaType);
-    const buffer = fs.readFileSync(mediaPath);
+    // Download quoted media (returns a Buffer directly, not a file path)
+    const buffer = await client.downloadMediaMessage(mediaType);
 
     // Send as audio/mp3 directly
     await client.sendMessage(
@@ -3265,9 +3266,6 @@ case "audioe": {
       },
       { quoted: m }
     );
-
-    // Cleanup
-    fs.unlinkSync(mediaPath);
 
   } catch (error) {
     console.error("toaudio error:", error);
@@ -3997,7 +3995,6 @@ if (isTele) {
 let fta2 = await client.downloadAndSaveMediaMessage(q)
 
     let link = await uploadToUguu(fta2)
-    try { fs.unlinkSync(fta2); } catch(e) {}
 
     const fileSizeMB = (mediaBuffer.length / (1024 * 1024)).toFixed(2)
 
@@ -5361,8 +5358,7 @@ let stickerResult = new Sticker(result, {
             background: "transparent",
           });
 const Buffer = await stickerResult.toBuffer();
-          client.sendMessage(m.chat, { sticker: Buffer }, { quoted: m })
-            .then(() => { try { fs.unlinkSync(result); } catch(e) {} });
+          client.sendMessage(m.chat, { sticker: Buffer }, { quoted: m });
 
 }
 break;
@@ -5394,15 +5390,13 @@ if (!m.quoted) return m.reply("quote a viewonce message eh")
     if (quotedMessage.imageMessage) {
       let imageCaption = quotedMessage.imageMessage.caption;
       let imageUrl = await client.downloadAndSaveMediaMessage(quotedMessage.imageMessage);
-      client.sendMessage(m.chat, { image: { url: imageUrl }, caption: `Retrieved by 𝐁𝐋𝐀𝐂𝐊-𝐌𝐃!\n${imageCaption}`}, { quoted: m })
-        .then(() => { try { fs.unlinkSync(imageUrl); } catch(e) {} });
+      client.sendMessage(m.chat, { image: { url: imageUrl }, caption: `Retrieved by 𝐁𝐋𝐀𝐂𝐊-𝐌𝐃!\n${imageCaption}`}, { quoted: m });
     }
 
     if (quotedMessage.videoMessage) {
       let videoCaption = quotedMessage.videoMessage.caption;
       let videoUrl = await client.downloadAndSaveMediaMessage(quotedMessage.videoMessage);
-      client.sendMessage(m.chat, { video: { url: videoUrl }, caption: `Retrieved by 𝐁𝐋𝐀𝐂𝐊-𝐌𝐃!\n${videoCaption}`}, { quoted: m })
-        .then(() => { try { fs.unlinkSync(videoUrl); } catch(e) {} });
+      client.sendMessage(m.chat, { video: { url: videoUrl }, caption: `Retrieved by 𝐁𝐋𝐀𝐂𝐊-𝐌𝐃!\n${videoCaption}`}, { quoted: m });
     }
       }
         break;
@@ -5417,15 +5411,13 @@ if (!m.quoted) return m.reply("quote a viewonce message eh")
     if (quotedMessage.imageMessage) {
       let imageCaption = quotedMessage.imageMessage.caption;
       let imageUrl = await client.downloadAndSaveMediaMessage(quotedMessage.imageMessage);
-      client.sendMessage(client.user.id, { image: { url: imageUrl }, caption: `Retrieved by Blackie!\n${imageCaption}`}, { quoted: m })
-        .then(() => { try { fs.unlinkSync(imageUrl); } catch(e) {} });
+      client.sendMessage(client.user.id, { image: { url: imageUrl }, caption: `Retrieved by Blackie!\n${imageCaption}`}, { quoted: m });
     }
 
     if (quotedMessage.videoMessage) {
       let videoCaption = quotedMessage.videoMessage.caption;
       let videoUrl = await client.downloadAndSaveMediaMessage(quotedMessage.videoMessage);
-      client.sendMessage(client.user.id, { video: { url: videoUrl }, caption: `Retrieved by Blackie!\n${videoCaption}`}, { quoted: m })
-        .then(() => { try { fs.unlinkSync(videoUrl); } catch(e) {} });
+      client.sendMessage(client.user.id, { video: { url: videoUrl }, caption: `Retrieved by Blackie!\n${videoCaption}`}, { quoted: m });
     }
       }
         break;
@@ -5459,8 +5451,7 @@ let stickerResult = new Sticker(result, {
             background: "transparent",
           });
 const Buffer = await stickerResult.toBuffer();
-          client.sendMessage(m.chat, { sticker: Buffer }, { quoted: m })
-            .then(() => { try { fs.unlinkSync(result); } catch(e) {} });
+          client.sendMessage(m.chat, { sticker: Buffer }, { quoted: m });
 
 }
 break;
