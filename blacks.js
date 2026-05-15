@@ -155,6 +155,18 @@ function getBotLid(client) {
     return null;
 }
 //========================================================================================================================//
+//========================================================================================================================//
+    function convertTimestamp(timestamp) {
+  const d = new Date(timestamp * 1000);
+  const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  return {
+    date: d.getDate(),
+    month: new Intl.DateTimeFormat('en-US', { month: 'long' }).format(d),
+    year: d.getFullYear(),
+    day: daysOfWeek[d.getUTCDay()],
+    time: `${d.getUTCHours()}:${d.getUTCMinutes()}:${d.getUTCSeconds()}`
+  }
+}
 //========================================================================================================================//      
 //========================================================================================================================//      
     const Heroku = require("heroku-client");  
@@ -343,7 +355,8 @@ for (let i = 0; i < lod.length; i++) {
 await client.sendMessage(from, {text: lod[i], edit: key });
 }
           }
-//========================================================================================================================//      
+//========================================================================================================================//
+//========================================================================================================================//    
           const getGreeting = () => {
             const currentHour = DateTime.now().setZone('Africa/Nairobi').hour;
 
@@ -530,7 +543,7 @@ let cap = `𝗛𝗲𝘆 𝘁𝗵𝗲𝗿𝗲😊, ${getGreeting()}\n\n╔═━�
 ╔════════════════════════╗
 > 𝐎𝐖𝐍𝐄𝐑 𝐂𝐎𝐌𝐌𝐀𝐍𝐃𝐒 
 ╔════════════════════════╣
-║   📢 settings
+║   ⚙️ settings
 ║   🔄 𝐫𝐞𝐬𝐭𝐚𝐫𝐭
 ║   📢 𝐜𝐚𝐬𝐭
 ║   ➕ 𝐣𝐨𝐢𝐧
@@ -1395,7 +1408,7 @@ await client.sendMessage(from, {
 break;
         //========================================================================================================================//
                 //========================================================================================================================//
-                          case "music": {
+       case "music": {
   const yts = require("yt-search");
   const fetch = require("node-fetch");
 
@@ -1425,7 +1438,7 @@ break;
       {
         document: { url: data.url },
         mimetype: "audio/mp3",
-        caption: "𝐁𝐋𝐀𝐂𝐊-𝐌𝐃 𝐁𝐎𝐓",
+        caption: "DOWNLOADED BY 𝐁𝐋𝐀𝐂𝐊-𝐌𝐃",
         fileName: `${data.title.replace(/[^a-zA-Z0-9 ]/g, "")}.mp3`,
       },
       { quoted: m }
@@ -4327,7 +4340,7 @@ try {
     reply('❌ Failed to fetch news. Please try again.');
   }
 }
-                break;
+break;
 
 //========================================================================================================================//                  
 case 'approve': case 'approve-all': {
@@ -5325,7 +5338,7 @@ case "whatsong": case "shazam": {
           }, { quoted: m });
 
           await client.sendMessage(m.chat, {
-            text: txt.replace('⬇️ Downloading...', `✅ Done! *${videoTitle}*`),
+            text: txt.replace('⬇️ Downloading...', `✅ Succesfully Downloaded *${videoTitle}*`),
             edit: infoMsg.key
           });
 
@@ -5790,19 +5803,8 @@ case "block": {
 
 //========================================================================================================================//                  
 //========================================================================================================================//                  
-              case 'gcprofile': {
- function convertTimestamp(timestamp) {
-  const d = new Date(timestamp * 1000);
-  const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  return {
-    date: d.getDate(),
-    month: new Intl.DateTimeFormat('en-US', { month: 'long' }).format(d),
-    year: d.getFullYear(),
-    day: daysOfWeek[d.getUTCDay()],
-    time: `${d.getUTCHours()}:${d.getUTCMinutes()}:${d.getUTCSeconds()}`
-  }
-}
-
+case 'gcprofile':
+  {
 if (!m.isGroup) return m.reply("This command is meant for groups");
 
 let info = await client.groupMetadata(m.chat);
@@ -5812,7 +5814,7 @@ let ts = await convertTimestamp(info.creation);
 try {
         pp = await client.profilePictureUrl(chat, 'image');
       } catch {
-        pp = 'https://i.imgur.com/l6rYr1f.jpeg';
+        pp = 'https://files.catbox.moe/t03s77.jpg';
       }
 
 await client.sendMessage(m.chat, { image: { url: pp }, 
