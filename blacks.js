@@ -3200,23 +3200,31 @@ break;
                   const shuffled = urls.sort(() => Math.random() - 0.5).slice(0, 5);
 
 
-                  for (let i = 0; i < shuffled.length; i++) {
-                    try {
-                      const imgRes = await axios.get(shuffled[i], {
+                  // Download all images in parallel
+                  const downloadResults = await Promise.all(
+                    shuffled.map(url =>
+                      axios.get(url, {
                         responseType: 'arraybuffer',
                         headers: { 'User-Agent': 'Mozilla/5.0' },
                         timeout: 15000
-                      });
-                      const buffer = Buffer.from(imgRes.data);
-                      await client.sendMessage(m.chat, {
-                        image: buffer,
-                        caption: i === 0 ? `🖼️ *${text}* [${i + 1}/${shuffled.length}]\n\n DOWNLOADED BY | 🤖 𝗕𝗟𝗔𝗖𝗞-𝗠𝗗` : `[${i + 1}/${shuffled.length}]`
-                      }, { quoted: m });
-                    } catch (_) {
-                      // Skip images that fail to download
-                    }
-                  }
+                      }).then(r => Buffer.from(r.data)).catch(() => null)
+                    )
+                  );
+                  const imageBuffers = downloadResults.filter(Boolean);
 
+                  if (!imageBuffers.length) return reply('❌ Could not download any images.');
+
+                  // Send all at once as a WhatsApp album
+                  const albumKey = `album_${Date.now()}`;
+                  await Promise.all(
+                    imageBuffers.map((buffer, i) =>
+                      client.sendMessage(m.chat, {
+                        image: buffer,
+                        caption: i === 0 ? `🖼️ *${text}*\n\n🤖 𝐂𝐇𝐀𝐂𝐊-𝐌𝐃` : '',
+                        groupingKey: albumKey
+                      }, { quoted: m })
+                    )
+                  );
                 } catch (err) {
                   reply('❌ Failed to get images api might be down!.');
                 }
