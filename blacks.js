@@ -3246,9 +3246,10 @@ case "toaudio":
 case "audioe": {
   const fs = require("fs");
 
-  const mediaType = m.msg?.contextInfo?.quotedMessage;
-  
-  if (!mediaType.videoMessage || !mediaType.audioMessage) {
+  const quotedMessage = m.msg?.contextInfo?.quotedMessage;
+  const mediaType = quotedMessage?.videoMessage || quotedMessage?.audioMessage;
+
+  if (!mediaType) {
     return m.reply("❌ Quote an audio or video to convert to MP3.");
   }
 
