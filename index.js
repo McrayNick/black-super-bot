@@ -423,8 +423,10 @@ client.ev.on("messages.upsert", async (chatUpdate) => {
       buffer = Buffer.concat([buffer, chunk]);
     }
     let type = await FileType.fromBuffer(buffer);
-    trueFileName = attachExtension ? (filename + '.' + type.ext) : filename;
-    await fs.writeFileSync(trueFileName, buffer);
+    if (!type) throw new Error(`Could not detect file type for: ${messageType}`);
+    let baseName = filename || `media_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+    let trueFileName = attachExtension ? (baseName + '.' + type.ext) : baseName;
+    fs.writeFileSync(trueFileName, buffer);
     return trueFileName;
   };
 
