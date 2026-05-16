@@ -5946,6 +5946,67 @@ await client.sendMessage(m.chat, { image: { url: pp },
         }
       }
     }
+
+//========================================================================================================================//
+//========================================================================================================================//
+// GPTDM CHATBOT — auto-reply in private chats only
+//========================================================================================================================//
+if (gptdm === 'on' && !m.isGroup && !mek.key.fromMe && !cmd && body && body.trim()) {
+  try {
+    // Per-user conversation memory (persists while bot is running)
+    if (!global.gptConversations) global.gptConversations = new Map();
+
+    const userJid = m.sender;
+    const maxHistory = 10; // max exchanges to remember per user
+
+    if (!global.gptConversations.has(userJid)) {
+      global.gptConversations.set(userJid, []);
+    }
+
+    const history = global.gptConversations.get(userJid);
+
+    // Build prompt with conversation context
+    let contextPrompt = body.trim();
+    if (history.length > 0) {
+      const historyText = history
+        .slice(-maxHistory)
+        .map(h => `${h.role === 'user' ? 'User' : 'Assistant'}: ${h.content}`)
+        .join('\n');
+      contextPrompt = `Previous conversation:\n${historyText}\n\nUser: ${body.trim()}`;
+    }
+
+    // Show typing indicator
+    await client.sendPresenceUpdate('composing', m.chat);
+
+    // Call GPT API
+    const gptRes = await axios.get('https://apis.xcasper.space/api/ai/chatgpt4o', {
+      params: { q: contextPrompt },
+      timeout: 30000
+    });
+
+    const replyText = gptRes.data?.reply;
+    if (!replyText) throw new Error('Empty AI response');
+
+    // Save exchange to history
+    history.push({ role: 'user', content: body.trim() });
+    history.push({ role: 'assistant', content: replyText });
+
+    // Keep history from growing too large
+    if (history.length > maxHistory * 2) {
+      global.gptConversations.set(userJid, history.slice(-(maxHistory * 2)));
+    }
+
+    await client.sendPresenceUpdate('paused', m.chat);
+    await client.sendMessage(m.chat, { text: replyText }, { quoted: m });
+
+  } catch (gptErr) {
+    console.error('gptdm error:', gptErr.message);
+    await client.sendPresenceUpdate('paused', m.chat).catch(() => {});
+  }
+}
+//========================================================================================================================//
+//========================================================================================================================//
+
   } catch (err) {
     console.log(util.format(err));
   }
