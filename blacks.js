@@ -5936,11 +5936,9 @@ await client.sendMessage(m.chat, { image: { url: pp },
             if (m.isBaileys) return;
             if (!budy.toLowerCase()) return;
             if (argsLog || (cmd && !m.isGroup)) {
-              // client.sendReadReceipt(m.chat, m.sender, [m.key.id])
-              console.log(chalk.black(chalk.bgRed("[ ERROR ]")), color("command", "turquoise"), color(`${prefix}${command}`, "turquoise"), color("Raven", "turquoise"));
+              console.log(chalk.black(chalk.bgRed("[ ERROR ]")), color("command", "turquoise"), color(`${prefix}${command}`, "turquoise"), color("BLACK-MD", "turquoise"));
             } else if (argsLog || (cmd && m.isGroup)) {
-              // client.sendReadReceipt(m.chat, m.sender, [m.key.id])
-              console.log(chalk.black(chalk.bgRed("[ ERROR ]")), color("command", "turquoise"), color(`${prefix}${command}`, "turquoise"), color("Raven", "turquoise"));
+              console.log(chalk.black(chalk.bgRed("[ ERROR ]")), color("command", "turquoise"), color(`${prefix}${command}`, "turquoise"), color("BLACK-MD", "turquoise"));
             }
           }
         }
@@ -5953,11 +5951,10 @@ await client.sendMessage(m.chat, { image: { url: pp },
 //========================================================================================================================//
 if (gptdm === 'on' && !m.isGroup && !mek.key.fromMe && !cmd && body && body.trim()) {
   try {
-    // Per-user conversation memory (persists while bot is running)
     if (!global.gptConversations) global.gptConversations = new Map();
 
     const userJid = m.sender;
-    const maxHistory = 10; // max exchanges to remember per user
+    const maxHistory = 10; 
 
     if (!global.gptConversations.has(userJid)) {
       global.gptConversations.set(userJid, []);
@@ -5965,7 +5962,6 @@ if (gptdm === 'on' && !m.isGroup && !mek.key.fromMe && !cmd && body && body.trim
 
     const history = global.gptConversations.get(userJid);
 
-    // Build prompt with conversation context
     let contextPrompt = body.trim();
     if (history.length > 0) {
       const historyText = history
@@ -5975,10 +5971,8 @@ if (gptdm === 'on' && !m.isGroup && !mek.key.fromMe && !cmd && body && body.trim
       contextPrompt = `Previous conversation:\n${historyText}\n\nUser: ${body.trim()}`;
     }
 
-    // Show typing indicator
     await client.sendPresenceUpdate('composing', m.chat);
 
-    // Call GPT API
     const gptRes = await axios.get('https://apis.xcasper.space/api/ai/chatgpt4o', {
       params: { q: contextPrompt },
       timeout: 30000
@@ -5987,11 +5981,9 @@ if (gptdm === 'on' && !m.isGroup && !mek.key.fromMe && !cmd && body && body.trim
     const replyText = gptRes.data?.reply;
     if (!replyText) throw new Error('Empty AI response');
 
-    // Save exchange to history
     history.push({ role: 'user', content: body.trim() });
     history.push({ role: 'assistant', content: replyText });
 
-    // Keep history from growing too large
     if (history.length > maxHistory * 2) {
       global.gptConversations.set(userJid, history.slice(-(maxHistory * 2)));
     }
