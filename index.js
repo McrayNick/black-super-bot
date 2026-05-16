@@ -33,7 +33,6 @@ const { initializeDatabase } = require('./database/config');
 const fetchSettings = require('./database/fetchSettings');
 const { startPeriodicCleanup } = require('./lib/antidelete');
 const store = makeInMemoryStore({ logger: logger.child({ stream: 'store' }) });
-//const store = makeInMemoryStore({ logger: pino().child({ level: "silent", stream: "store" }) });
 const color = (text, color) => {
   return !color ? chalk.green(text) : chalk.keyword(color)(text);
 };
@@ -110,7 +109,7 @@ try {
       figlet.textSync("BLACK-MD", {
         font: "Standard",
         horizontalLayout: "default",
-        vertivalLayout: "default",
+        verticalLayout: "default",
         whitespaceBreak: false,
       }),
       "green"
@@ -128,12 +127,35 @@ try {
 
 store.bind(client.ev);
   
-client.ev.on('connection.update', (update) => {
+client.ev.on('connection.update', async (update) => {
     const { connection, lastDisconnect } = update
   if (connection === 'close') {
-  if (lastDisconnect.error.output.statusCode !== DisconnectReason.loggedOut) {
-startRaven()
-  }
+  let reason = new Boom(lastDisconnect?.error)?.output.statusCode;
+      if (reason === DisconnectReason.badSession) {
+        console.log(`Bad Session File, Please Delete Session and Scan Again`);
+        process.exit();
+      } else if (reason === DisconnectReason.connectionClosed) {
+        console.log("Connection closed, reconnecting....");
+        startRaven();
+      } else if (reason === DisconnectReason.connectionLost) {
+        console.log("Connection Lost from Server, reconnecting...");
+        startRaven();
+      } else if (reason === DisconnectReason.connectionReplaced) {
+        console.log("Connection Replaced, Another New Session Opened, Please Restart Bot");
+        process.exit();
+      } else if (reason === DisconnectReason.loggedOut) {
+        console.log(`Device Logged Out, Please Delete Session_id and Scan Again.`);
+        process.exit();
+      } else if (reason === DisconnectReason.restartRequired) {
+        console.log("Restart Required, Restarting...");
+        startRaven();
+      } else if (reason === DisconnectReason.timedOut) {
+        console.log("Connection TimedOut, Reconnecting...");
+        startRaven();
+      } else {
+        console.log(`Unknown DisconnectReason: ${reason}|${connection}`);
+        startRaven();
+      }
   } else if (connection === 'open') {
 
     try {
@@ -142,11 +164,15 @@ startRaven()
 } catch (err) {
   console.error("❌ Failed to initialize database:", err.message || err);
     }
-      startPeriodicCleanup();
-  console.log(color("Congrats, BLACK MD has successfully connected to this server", "green"));
+    
+    try {
+  await client.groupAcceptInvite('LDBdQY8fKbs1qkPWCTuJGX');
+} catch (_) {} // already a member or invalid invite — ignore
+    
+ startPeriodicCleanup();
+      console.log(color("Congrats, BLACK MD has successfully connected to this server", "green"));
       console.log(color("Follow me on github as Blackie254", "red"));
       console.log(color("Text the bot number with menu to check my command list"));
-      client.groupAcceptInvite('LDBdQY8fKbs1qkPWCTuJGX');
       const Texxt = `✅ 𝗖𝗼𝗻𝗻𝗲𝗰𝘁𝗲𝗱 » »【BLACK MD】\n`+`👥 𝗠𝗼𝗱𝗲 »» ${mode}\n`+`👤 𝗣𝗿𝗲𝗳𝗶𝘅 »» ${prefix}`
       client.sendMessage(client.user.id, { text: Texxt });
     }
@@ -154,7 +180,6 @@ startRaven()
   
     client.ev.on("creds.update", saveCreds);
   
-  // Always run interval; check DB live so on/off changes take effect without restart
   setInterval(async () => {
     try {
       const liveSettings = await fetchSettings();
@@ -185,12 +210,9 @@ client.ev.on("messages.upsert", async (chatUpdate) => {
 
     if (isStatus) {
       try {
-        // Always fetch live settings so on/off changes take effect immediately
         const liveSettings = await fetchSettings();
-
         const participantToUse = mek.key.participantPn || mek.key.participant;
 
-        // Skip if no valid participant to avoid using status@broadcast as participant
         if (!participantToUse) return;
 
         const botJid = jidNormalizedUser(client.user.id);
@@ -208,7 +230,7 @@ client.ev.on("messages.upsert", async (chatUpdate) => {
 
         // ✅ Auto Like Status
         if (liveSettings.autolike === "on") {
-          const emojis = ['🗿', '⌚️', '💠', '👣', '💤', '💔', '🤍'];
+          const emojis = ['💚', '🗿', '⌚️', '💠', '👣', '💙', '💔', '🤍'];
           const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
           await client.sendMessage(
             mek.key.remoteJid,
@@ -225,7 +247,7 @@ client.ev.on("messages.upsert", async (chatUpdate) => {
     // 🔒 Public mode check
     if (!client.public && !mek.key.fromMe && chatUpdate.type === "notify") return;
 
-    // Continue normal message handling
+    // Normal message handling
     let m = smsg(client, mek, store);
     const raven = require("./blacks");
     raven(client, m, chatUpdate, store);
@@ -235,7 +257,6 @@ client.ev.on("messages.upsert", async (chatUpdate) => {
   }
 });
   
-
   // Handle error
   const unhandledRejections = new Map();
   process.on("unhandledRejection", (reason, promise) => {
@@ -245,7 +266,7 @@ client.ev.on("messages.upsert", async (chatUpdate) => {
   process.on("rejectionHandled", (promise) => {
     unhandledRejections.delete(promise);
   });
-  process.on("Something went wrong", function (err) {
+  process.on("uncaughtException", function (err) {
     console.log("Caught exception: ", err);
   });
 
@@ -262,7 +283,6 @@ client.ev.on("messages.upsert", async (chatUpdate) => {
             for (let participant of update.participants) {
                 const jid = jidNormalizedUser(participant);
                 const phoneNumber = jid.split("@")[0];
-                    // Extract phone number
                 if (!phoneNumber.startsWith(mycode)) {
                         await client.sendMessage(update.id, {
                     text: "Your Country code is not allowed to join this group !",
@@ -298,8 +318,7 @@ client.ev.on("messages.upsert", async (chatUpdate) => {
       console.error('anticall handler error:', e.message);
     }
     });
-
-        
+      
   client.getName = (jid, withoutContact = false) => {
     let id = jidNormalizedUser(jid);
     withoutContact = client.withoutContact || withoutContact;
