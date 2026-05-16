@@ -1460,14 +1460,13 @@ break;
 }
 break;
 //========================================================================================================================//                  
-
-          case "togroupstatus":
+case "togroupstatus":
 case "groupstatus":
 case "statusgroup": {
 
   // ✅ Superuser check
-  if (!isSuperUser) return m.reply("❌ Owner Only Command!");
-
+  if (!Owner) return m.reply(NotOwner);
+if (!m.isGroup) return m.reply(group);
   if (!text && !m.quoted) {
     return m.reply(
       "📌 Usage:\n" +
