@@ -1480,34 +1480,35 @@ if (!m.isGroup) return m.reply(group);
     let payload = { groupStatusMessage: {} };
 
     if (m.quoted) {
-      // Handle quoted media types
-      if (m.quoted.imageMessage) {
-        const caption = text || m.quoted.imageMessage.caption || "";
-        const filePath = await client.downloadAndSaveMediaMessage(m.quoted.imageMessage);
+      // m.quoted is a smsg-wrapped message: use .mtype to check type, .msg for content
+      const qtype = m.quoted.mtype || '';
+
+      if (qtype === 'imageMessage') {
+        const caption = text || m.quoted.msg?.caption || "";
+        const filePath = await client.downloadAndSaveMediaMessage(m.quoted);
         payload.groupStatusMessage.image = { url: filePath };
         if (caption) payload.groupStatusMessage.caption = caption;
 
-      } else if (m.quoted.videoMessage) {
-        const caption = text || m.quoted.videoMessage.caption || "";
-        const filePath = await client.downloadAndSaveMediaMessage(m.quoted.videoMessage);
+      } else if (qtype === 'videoMessage') {
+        const caption = text || m.quoted.msg?.caption || "";
+        const filePath = await client.downloadAndSaveMediaMessage(m.quoted);
         payload.groupStatusMessage.video = { url: filePath };
         if (caption) payload.groupStatusMessage.caption = caption;
 
-      } else if (m.quoted.audioMessage) {
-        const filePath = await client.downloadAndSaveMediaMessage(m.quoted.audioMessage);
+      } else if (qtype === 'audioMessage') {
+        const filePath = await client.downloadAndSaveMediaMessage(m.quoted);
         payload.groupStatusMessage.audio = { url: filePath };
 
-      } else if (m.quoted.documentMessage) {
-        const filePath = await client.downloadAndSaveMediaMessage(m.quoted.documentMessage);
+      } else if (qtype === 'documentMessage') {
+        const filePath = await client.downloadAndSaveMediaMessage(m.quoted);
         payload.groupStatusMessage.document = { url: filePath };
 
-      } else if (m.quoted.stickerMessage) {
-        const filePath = await client.downloadAndSaveMediaMessage(m.quoted.stickerMessage);
+      } else if (qtype === 'stickerMessage') {
+        const filePath = await client.downloadAndSaveMediaMessage(m.quoted);
         payload.groupStatusMessage.sticker = { url: filePath };
 
-      } else if (m.quoted.conversation || m.quoted.extendedTextMessage?.text) {
-        payload.groupStatusMessage.text =
-          m.quoted.conversation || m.quoted.extendedTextMessage.text;
+      } else if (m.quoted.text) {
+        payload.groupStatusMessage.text = m.quoted.text;
       }
 
       // If user supplied caption
